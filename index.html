@@ -101,7 +101,7 @@
     h1{
       margin:0;
       font-size:16px;
-      font-weight:900;   /* neu */
+      font-weight:900;
       letter-spacing:.2px;
       line-height:1.15;
     }
@@ -109,6 +109,7 @@
       margin:6px 0 0 0;
       font-size:12px;
       color:var(--muted);
+      min-height: 14px; /* damit Header nicht "springt", wenn leer */
     }
 
     .actions{
@@ -218,10 +219,10 @@
       margin-top:6px;
     }
 
-    /* FIX: labels/values always aligned nicely (iPhone) */
+    /* labels/values aligned nicely */
     .heroRow{
       display:grid;
-      grid-template-columns: 64px 1fr; /* label fixed, value flexible */
+      grid-template-columns: 64px 1fr;
       align-items:center;
       gap:10px;
       border: 1px solid rgba(255,255,255,0.10);
@@ -229,12 +230,14 @@
       border-radius: 14px;
       padding: 10px 10px;
     }
-      .heroKey{
-        font-weight: 900;
-        font-size: 16px;
-        letter-spacing: .2px;
-        opacity: 0.95;
-      }
+
+    /* LABELS now big + bold (like values) */
+    .heroKey{
+      font-weight: 900;
+      font-size: 16px;
+      letter-spacing: .2px;
+      opacity: 0.95;
+    }
 
     .heroVal{
       font-weight:900;
@@ -349,18 +352,19 @@
           <span class="pill btc" id="todayPill">Heute</span>
         </div>
 
+        <!-- FIXED: left label + right value (with ids!) -->
         <div class="heroGrid">
           <div class="heroRow">
-            <div class="heroKey">BTC:</div>
             <div class="heroKey btcVal">BTC</div>
+            <div class="heroVal btcVal" id="heroBtc">–</div>
           </div>
           <div class="heroRow">
-            <div class="heroKey">SATS:</div>
             <div class="heroKey satsVal">SATS</div>
+            <div class="heroVal satsVal mono" id="heroSats">–</div>
           </div>
           <div class="heroRow">
-            <div class="heroKey">EUR:</div>
             <div class="heroKey eurVal">EUR</div>
+            <div class="heroVal eurVal" id="heroEur">–</div>
           </div>
         </div>
 
@@ -437,7 +441,7 @@
       return url.searchParams.get(name) || "";
     }
 
-    // FIX: robust against "bitcoin:" prefix (QR), spaces, uppercase
+    // robust against "bitcoin:" prefix (QR), spaces, uppercase
     function normalizeAddr(a){
       return (a || "")
         .trim()
@@ -448,7 +452,6 @@
     const ADDRESS = normalizeAddr(getParam("addr"));
     const WALLET_NAME = ADDRESS_BOOK[ADDRESS];
 
-    // If not allowlisted: stop
     if(!WALLET_NAME){
       document.body.innerHTML = `
         <div style="max-width:520px;margin:40px auto;padding:16px;color:white;
@@ -483,12 +486,12 @@
       return btc.toFixed(digits).replace(/0+$/,'').replace(/\.$/,'');
     }
     function fmtSats(sats){ return new Intl.NumberFormat("de-DE").format(sats); }
-    function fmtEur(eur){
-      return new Intl.NumberFormat("de-DE", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(eur);
+
+    // EUR number only (no € sign)
+    function fmtEurNumberOnly(eur){
+      return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(eur);
     }
-    function fmtNumber(n){
-      return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(n);
-    }
+
     function fmtDate(ts){
       if(!ts) return "—";
       const d = new Date(ts * 1000);
@@ -643,7 +646,7 @@
 
         const deltaEl = document.createElement("div");
         const sign = deltaBtc >= 0 ? "+" : "−";
-        deltaEl.textContent = `${sign}${fmtBtcCompact(Math.abs(deltaBtc))} BTC`;
+        deltaEl.textContent = `${sign}${fmtBtcCompact(Math.abs(deltaBtc))} BTC`; // hier lassen wir BTC dran (Tx-Kontext)
         deltaEl.className = deltaBtc >= 0 ? "pos mono" : "neg mono";
 
         const statusEl = document.createElement("div");
@@ -733,7 +736,6 @@
       destroyCharts();
       clearError();
 
-      // Header + Wallet card
       el("walletTitle").textContent = "Bitcoin Wallet";
       el("walletSub").textContent = "";
 
@@ -757,9 +759,10 @@
         const confirmedBtc = satsToBtcNum(confirmedSats);
         const pendingBtc = satsToBtcNum(pendingSats);
 
+        // VALUES WITHOUT UNITS
         el("heroBtc").textContent = `${fmtBtcCompact(confirmedBtc)}`;
         el("heroSats").textContent = `${fmtSats(confirmedSats)}`;
-        el("pendingPill").textContent = `Offen: ${fmtBtcCompact(pendingBtc)} BTC`;
+        el("pendingPill").textContent = `Offen: ${fmtBtcCompact(pendingBtc)} BTC`; // hier lassen wir BTC dran
         el("txCountPill").textContent = `Bewegungen: ${new Intl.NumberFormat("de-DE").format(txCount)}`;
 
         const recent = await fetchJson(`${MEMPOOL}/address/${ADDRESS}/txs`);
@@ -798,7 +801,8 @@
           eurValues.push(balancesBtc[i] * p);
         }
 
-        el("heroEur").textContent = lastPrice ? fmtEur(confirmedBtc * lastPrice) : "—";
+        // HERO EUR: number only (no €)
+        el("heroEur").textContent = lastPrice ? fmtEurNumberOnly(confirmedBtc * lastPrice) : "—";
 
         el("eurMeta").textContent = `${labels.length} Tage`;
         el("priceMeta").textContent = `${labels.length} Tage`;
