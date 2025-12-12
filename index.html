@@ -101,6 +101,7 @@
     h1{
       margin:0;
       font-size:16px;
+      font-weight:900;   /* neu */
       letter-spacing:.2px;
       line-height:1.15;
     }
@@ -728,8 +729,9 @@
       clearError();
 
       // Header + Wallet card
-      el("walletTitle").textContent = WALLET_NAME;
-      el("walletSub").textContent = "Bitcoin Wallet";
+      el("walletTitle").textContent = "Bitcoin Wallet";
+      el("walletSub").textContent = "";
+
       document.title = `Bitcoin – ${WALLET_NAME}`;
 
       el("walletName").textContent = WALLET_NAME;
