@@ -229,11 +229,13 @@
       border-radius: 14px;
       padding: 10px 10px;
     }
-    .heroKey{
-      color: var(--muted);
-      font-size:12px;
-      letter-spacing:.2px;
-    }
+      .heroKey{
+        font-weight: 900;
+        font-size: 16px;
+        letter-spacing: .2px;
+        opacity: 0.95;
+      }
+
     .heroVal{
       font-weight:900;
       font-size: 16px;
@@ -350,15 +352,15 @@
         <div class="heroGrid">
           <div class="heroRow">
             <div class="heroKey">BTC:</div>
-            <div class="heroVal btcVal" id="heroBtc">–</div>
+            <div class="heroKey btcVal">BTC</div>
           </div>
           <div class="heroRow">
             <div class="heroKey">SATS:</div>
-            <div class="heroVal satsVal mono" id="heroSats">–</div>
+            <div class="heroKey satsVal">SATS</div>
           </div>
           <div class="heroRow">
             <div class="heroKey">EUR:</div>
-            <div class="heroVal eurVal" id="heroEur">–</div>
+            <div class="heroKey eurVal">EUR</div>
           </div>
         </div>
 
@@ -483,6 +485,9 @@
     function fmtSats(sats){ return new Intl.NumberFormat("de-DE").format(sats); }
     function fmtEur(eur){
       return new Intl.NumberFormat("de-DE", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(eur);
+    }
+    function fmtNumber(n){
+      return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(n);
     }
     function fmtDate(ts){
       if(!ts) return "—";
@@ -752,8 +757,8 @@
         const confirmedBtc = satsToBtcNum(confirmedSats);
         const pendingBtc = satsToBtcNum(pendingSats);
 
-        el("heroBtc").textContent = `${fmtBtcCompact(confirmedBtc)} BTC`;
-        el("heroSats").textContent = `${fmtSats(confirmedSats)} sats`;
+        el("heroBtc").textContent = `${fmtBtcCompact(confirmedBtc)}`;
+        el("heroSats").textContent = `${fmtSats(confirmedSats)}`;
         el("pendingPill").textContent = `Offen: ${fmtBtcCompact(pendingBtc)} BTC`;
         el("txCountPill").textContent = `Bewegungen: ${new Intl.NumberFormat("de-DE").format(txCount)}`;
 
