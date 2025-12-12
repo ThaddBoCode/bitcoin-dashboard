@@ -47,18 +47,18 @@
     }
 
     .wrap{
-      max-width: 520px;   /* mobile centered */
+      max-width: 520px;
       margin: 0 auto;
       padding: max(14px, env(safe-area-inset-top)) 12px 26px;
     }
 
-    /* HEADER: compact & sticky-like feeling */
     .topbar{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:10px;
     }
+
     .walletCard{
       position: relative;
       margin-top: 10px;
@@ -83,7 +83,6 @@
       padding-left: 6px;
     }
 
-    
     .walletName{
       font-size: 24px;
       font-weight: 950;
@@ -217,17 +216,23 @@
       gap:8px;
       margin-top:6px;
     }
+
+    /* FIX: labels/values always aligned nicely (iPhone) */
     .heroRow{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
+      display:grid;
+      grid-template-columns: 64px 1fr; /* label fixed, value flexible */
+      align-items:center;
       gap:10px;
       border: 1px solid rgba(255,255,255,0.10);
       background: rgba(0,0,0,0.14);
       border-radius: 14px;
       padding: 10px 10px;
     }
-    .heroKey{ color: var(--muted); font-size:12px; }
+    .heroKey{
+      color: var(--muted);
+      font-size:12px;
+      letter-spacing:.2px;
+    }
     .heroVal{
       font-weight:900;
       font-size: 16px;
@@ -235,6 +240,7 @@
       text-align:right;
       word-break: break-word;
     }
+
     .btcVal{ color: var(--btc2); }
     .eurVal{ color: var(--eur2); }
     .satsVal{ color: rgba(255,255,255,0.9); }
@@ -250,7 +256,6 @@
     .pill.eur { border-color: rgba(47,124,255,0.35); }
     .pill.purple { border-color: rgba(166,107,255,0.35); }
 
-    /* CHART cards */
     .title{
       display:flex;
       align-items:baseline;
@@ -265,7 +270,6 @@
     .chartBox{ height: 220px; }
     .chartBoxSmall{ height: 170px; }
 
-    /* TABLE: mobile-friendly (stacked rows) */
     .txList{
       display:flex;
       flex-direction:column;
@@ -334,9 +338,8 @@
       <div class="walletName" id="walletName">—</div>
       <div class="walletAddr mono" id="walletAddr">—</div>
     </div>
-    
+
     <div class="stack">
-      <!-- HERO -->
       <div class="card">
         <div class="heroHeader">
           <div class="heroTitle"><span class="heroDot"></span>Aktueller Stand</div>
@@ -370,7 +373,6 @@
         <div class="error" id="errBox"></div>
       </div>
 
-      <!-- BTC BALANCE -->
       <div class="card">
         <div class="title">
           <div>
@@ -382,7 +384,6 @@
         <div class="chartBox"><canvas id="balanceChart"></canvas></div>
       </div>
 
-      <!-- EUR VALUE -->
       <div class="card">
         <div class="title">
           <div>
@@ -394,7 +395,6 @@
         <div class="chartBoxSmall"><canvas id="eurChart"></canvas></div>
       </div>
 
-      <!-- PRICE -->
       <div class="card">
         <div class="title">
           <div>
@@ -406,7 +406,6 @@
         <div class="chartBoxSmall"><canvas id="priceChart"></canvas></div>
       </div>
 
-      <!-- TX LIST -->
       <div class="card">
         <div class="title">
           <div>
@@ -422,22 +421,31 @@
   </div>
 
   <script>
-    // HARDCODED WHITELIST: Adresse -> Name
+    // HARDCODED WHITELIST: address -> name
+    // IMPORTANT: keys should be lowercase to match normalization
     const ADDRESS_BOOK = Object.freeze({
       "bc1qpl73fwdsankdjz0tcetmndfdjgadr54tqxtya0": "Juna",
       // "bc1q....": "Cold Wallet",
       // "bc1q....": "Sparen",
     });
-    
+
     function getParam(name){
       const url = new URL(window.location.href);
       return url.searchParams.get(name) || "";
     }
-    
-    const ADDRESS = getParam("addr").trim().toLowerCase();
+
+    // FIX: robust against "bitcoin:" prefix (QR), spaces, uppercase
+    function normalizeAddr(a){
+      return (a || "")
+        .trim()
+        .toLowerCase()
+        .replace(/^bitcoin:/, "");
+    }
+
+    const ADDRESS = normalizeAddr(getParam("addr"));
     const WALLET_NAME = ADDRESS_BOOK[ADDRESS];
-    
-    // Wenn keine/unerlaubte Adresse: Abbruch
+
+    // If not allowlisted: stop
     if(!WALLET_NAME){
       document.body.innerHTML = `
         <div style="max-width:520px;margin:40px auto;padding:16px;color:white;
@@ -450,7 +458,6 @@
       throw new Error("Address not in allowlist");
     }
 
-    
     const MEMPOOL = "https://mempool.space/api";
     const COINGECKO = "https://api.coingecko.com/api/v3";
 
@@ -553,7 +560,6 @@
       return outSats - inSats;
     }
 
-    // Charts
     let balanceChart, eurChart, priceChart;
     function destroyCharts(){
       if(balanceChart) balanceChart.destroy();
@@ -575,7 +581,6 @@
             borderWidth:2.6,
             borderColor: colorHex,
             backgroundColor: colorHex,
-
             pointRadius: (c) => changeIdxSet?.has(c.dataIndex) ? 3 : 0,
             pointHoverRadius: 6,
             pointHitRadius: 14,
@@ -588,7 +593,7 @@
           responsive:true,
           maintainAspectRatio:false,
           plugins:{
-            legend:{ display:false }, /* mobile: hide legend */
+            legend:{ display:false },
             tooltip:{ mode:"index", intersect:false }
           },
           interaction:{ mode:"index", intersect:false },
@@ -600,7 +605,6 @@
       });
     }
 
-    // TX list rendering (mobile cards)
     function renderTxList(txs){
       const list = el("txList");
       list.innerHTML = "";
@@ -649,7 +653,6 @@
       }
     }
 
-    // Fetch all confirmed txs with paging
     async function fetchAllConfirmedTxs(){
       const all = [];
       let lastSeen = null;
@@ -696,8 +699,6 @@
 
       for(let d = startDay; d <= todayDay; d = addDaysUnix(d, 1)){
         runningSats += (deltasByDay.get(d) || 0);
-
-        // mobile labels: shorter
         labels.push(new Date(d*1000).toLocaleDateString("de-DE", { day:"2-digit", month:"short" }));
         balancesBtc.push(satsToBtcNum(runningSats));
       }
@@ -726,16 +727,15 @@
       destroyCharts();
       clearError();
 
+      // Header + Wallet card
       el("walletTitle").textContent = WALLET_NAME;
       el("walletSub").textContent = "Bitcoin Wallet";
       document.title = `Bitcoin – ${WALLET_NAME}`;
 
-      
       el("walletName").textContent = WALLET_NAME;
       el("walletAddr").textContent = ADDRESS;
-      
-      el("explorerBtn").href = `https://mempool.space/address/${ADDRESS}`;
 
+      el("explorerBtn").href = `https://mempool.space/address/${ADDRESS}`;
       el("updatedAt").textContent = new Date().toLocaleString("de-DE", { dateStyle:"short", timeStyle:"short" });
 
       el("progress").textContent = "…";
@@ -830,4 +830,3 @@
   </script>
 </body>
 </html>
-
