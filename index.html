@@ -7,313 +7,532 @@
   <meta name="apple-mobile-web-app-title" content="Bitcoin">
   <title>Bitcoin</title>
 
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-    :root{
-      --bg0:#070b14;
-      --bg1:#0b1220;
+    :root {
+      --bg0: #05080f;
+      --bg1: #0a0f1a;
+      --bg2: #0f1520;
 
-      --card: rgba(255,255,255,0.07);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.68);
-      --border: rgba(255,255,255,0.12);
+      --card: rgba(255,255,255,0.03);
+      --card-border: rgba(255,255,255,0.06);
+      --card-hover: rgba(255,255,255,0.05);
 
-      --ok: rgba(56,211,159,0.95);
-      --warn: rgba(255,204,102,0.95);
-      --bad: rgba(255,107,107,0.95);
+      --text: rgba(255,255,255,0.95);
+      --text-secondary: rgba(255,255,255,0.6);
+      --text-muted: rgba(255,255,255,0.4);
 
-      --btc: #ff8a00;
-      --btc2:#ffb454;
-      --eur:#2f7cff;
-      --eur2:#7fb0ff;
-      --price:#a66bff;
-      --price2:#d1b7ff;
+      --ok: #34d399;
+      --warn: #fbbf24;
+      --bad: #f87171;
 
-      --grid: rgba(255,255,255,0.08);
-      --ticks: rgba(255,255,255,0.72);
-    }
+      --btc: #f7931a;
+      --btc-glow: rgba(247,147,26,0.15);
+      --btc-soft: rgba(247,147,26,0.8);
+      --eur: #3b82f6;
+      --eur-glow: rgba(59,130,246,0.15);
+      --price: #a78bfa;
+      --price-glow: rgba(167,139,250,0.15);
 
-    *{ box-sizing: border-box; }
-    body{
-      margin:0;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial;
-      color:var(--text);
-      background:
-        radial-gradient(900px 500px at 15% 0%, rgba(255,138,0,0.18), transparent 60%),
-        radial-gradient(900px 500px at 85% 0%, rgba(47,124,255,0.18), transparent 60%),
-        radial-gradient(900px 500px at 50% 100%, rgba(166,107,255,0.14), transparent 60%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-    }
+      --glass: rgba(255,255,255,0.02);
+      --glass-border: rgba(255,255,255,0.08);
 
-    .wrap{
-      max-width: 520px;
-      margin: 0 auto;
-      padding: max(14px, env(safe-area-inset-top)) 12px 26px;
-    }
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
 
-    .topbar{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
+      --font-display: 'Instrument Serif', Georgia, serif;
+      --font-body: 'DM Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .walletCard{
-      position: relative;
-      margin-top: 10px;
-      padding: 12px 12px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,138,0,0.28);
-      background:
-        radial-gradient(600px 220px at 10% 0%, rgba(255,138,0,0.18), transparent 60%),
-        rgba(0,0,0,0.16);
-    }
-    .walletCard::before{
-      content:"";
-      position:absolute;
-      left:0; top:10px; bottom:10px;
-      width:4px;
-      border-radius: 999px;
-      background: rgba(255,138,0,0.9);
-      box-shadow: 0 0 0 6px rgba(255,138,0,0.10);
-    }
-    .walletCard > *{
-      position:relative;
-      padding-left: 6px;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .walletName{
-      font-size: 24px;
-      font-weight: 950;
-      letter-spacing: .2px;
-      line-height: 1.05;
-      color: rgba(255,255,255,0.98);
-      text-shadow: 0 10px 30px rgba(255,138,0,0.18);
-    }
-    .walletAddr{
-      margin-top: 6px;
-      font-size: 12px;
-      color: rgba(255,255,255,0.72);
-      word-break: break-all;
-    }
-
-    h1{
-      margin:0;
-      font-size:16px;
-      font-weight:900;
-      letter-spacing:.2px;
-      line-height:1.15;
-    }
-    .sub{
-      margin:6px 0 0 0;
-      font-size:12px;
-      color:var(--muted);
-      min-height: 14px; /* damit Header nicht "springt", wenn leer */
-    }
-
-    .actions{
-      display:flex;
-      flex-direction:column;
-      gap:8px;
-      align-items:flex-end;
-      min-width: 148px;
-    }
-    .btnRow{
-      display:flex;
-      gap:8px;
-    }
-    button, a.btn{
-      appearance:none;
-      border:1px solid var(--border);
-      background: rgba(255,255,255,0.06);
+    body {
+      font-family: var(--font-body);
       color: var(--text);
-      padding:9px 10px;
-      border-radius:12px;
-      font-size:12px;
-      cursor:pointer;
-      text-decoration:none;
-      white-space:nowrap;
-    }
-    .btnIcon{
-      padding:9px 10px;
-      width:44px;
-      text-align:center;
-    }
-    button:active{ transform: translateY(1px); }
-
-    .pillRow{
-      display:flex;
-      gap:6px;
-      flex-wrap:wrap;
-      justify-content:flex-end;
-    }
-    .pill{
-      display:inline-block;
-      padding:4px 10px;
-      border-radius:999px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(0,0,0,0.18);
-      color: rgba(255,255,255,0.86);
-      font-size: 11px;
-      white-space: nowrap;
-    }
-    #statusPill.ok{ border-color: rgba(56,211,159,0.45); color: var(--ok); }
-    #statusPill.warn{ border-color: rgba(255,204,102,0.45); color: var(--warn); }
-    #statusPill.bad{ border-color: rgba(255,107,107,0.45); color: var(--bad); }
-
-    .stack{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      margin-top:12px;
+      background: var(--bg0);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 12px;
-      position:relative;
-      overflow:hidden;
-    }
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:-2px;
+    /* Ambient background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
       background:
-        radial-gradient(800px 260px at 10% 0%, rgba(255,138,0,0.08), transparent 55%),
-        radial-gradient(800px 260px at 90% 0%, rgba(47,124,255,0.08), transparent 55%),
-        radial-gradient(900px 340px at 50% 120%, rgba(166,107,255,0.06), transparent 65%);
-      pointer-events:none;
-    }
-    .card > *{ position:relative; }
-
-    /* HERO */
-    .heroHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:8px;
-    }
-    .heroTitle{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:900;
-      letter-spacing:.2px;
-      font-size:13px;
-    }
-    .heroDot{
-      width:10px; height:10px; border-radius:999px;
-      background: radial-gradient(circle at 30% 30%, #fff, var(--btc));
-      box-shadow: 0 0 0 4px rgba(255,138,0,0.12);
-      flex:0 0 auto;
+        radial-gradient(ellipse 100% 60% at 0% 0%, rgba(247,147,26,0.08), transparent 50%),
+        radial-gradient(ellipse 80% 50% at 100% 0%, rgba(59,130,246,0.06), transparent 50%),
+        radial-gradient(ellipse 90% 50% at 50% 100%, rgba(167,139,250,0.05), transparent 50%);
+      pointer-events: none;
+      z-index: -1;
     }
 
-    .heroGrid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap:8px;
-      margin-top:6px;
+    /* Noise texture overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: -1;
     }
 
-    /* labels/values aligned nicely */
-    .heroRow{
-      display:grid;
-      grid-template-columns: 64px 1fr;
-      align-items:center;
-      gap:10px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(0,0,0,0.14);
-      border-radius: 14px;
-      padding: 10px 10px;
+    .wrap {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: max(20px, env(safe-area-inset-top)) 16px 40px;
     }
 
-    /* LABELS now big + bold (like values) */
-    .heroKey{
-      font-weight: 900;
+    /* Header */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--btc) 0%, #e67e00 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 32px var(--btc-glow), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .brand-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .btnRow {
+      display: flex;
+      gap: 8px;
+    }
+
+    button, a.btn {
+      appearance: none;
+      border: 1px solid var(--glass-border);
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: var(--font-body);
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.2s var(--ease-out);
+    }
+
+    button:hover, a.btn:hover {
+      background: var(--card-hover);
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .btnIcon {
+      width: 40px;
+      padding: 10px;
+      text-align: center;
       font-size: 16px;
-      letter-spacing: .2px;
-      opacity: 0.95;
     }
 
-    .heroVal{
-      font-weight:900;
-      font-size: 16px;
-      letter-spacing:.2px;
-      text-align:right;
-      word-break: break-word;
+    .pillRow {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
-    .btcVal{ color: var(--btc2); }
-    .eurVal{ color: var(--eur2); }
-    .satsVal{ color: rgba(255,255,255,0.9); }
-    .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 100px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+      transition: all 0.2s var(--ease-out);
+    }
 
-    .miniBadges{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      margin-top:10px;
+    .pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.6;
     }
-    .pill.btc { border-color: rgba(255,138,0,0.35); }
-    .pill.eur { border-color: rgba(47,124,255,0.35); }
-    .pill.purple { border-color: rgba(166,107,255,0.35); }
 
-    .title{
-      display:flex;
-      align-items:baseline;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-bottom: 6px;
-    }
-    .title strong{ font-size: 13px; }
-    .tiny{ font-size: 11px; color: var(--muted); margin-top: 3px; }
+    #statusPill.ok { color: var(--ok); border-color: rgba(52,211,153,0.2); }
+    #statusPill.ok::before { background: var(--ok); opacity: 1; box-shadow: 0 0 8px var(--ok); }
+    #statusPill.warn { color: var(--warn); border-color: rgba(251,191,36,0.2); }
+    #statusPill.warn::before { background: var(--warn); opacity: 1; }
+    #statusPill.bad { color: var(--bad); border-color: rgba(248,113,113,0.2); }
+    #statusPill.bad::before { background: var(--bad); opacity: 1; }
 
-    .chartBox{ height: 220px; }
-    .chartBoxSmall{ height: 170px; }
+    /* Wallet Identity Card */
+    .walletCard {
+      position: relative;
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, rgba(247,147,26,0.08) 0%, rgba(247,147,26,0.02) 100%);
+      border: 1px solid rgba(247,147,26,0.15);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
 
-    .txList{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:10px;
+    .walletCard::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, var(--btc) 0%, rgba(247,147,26,0.3) 100%);
+      border-radius: 4px 0 0 4px;
     }
-    .txItem{
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(0,0,0,0.14);
-      border-radius: 14px;
-      padding: 10px 10px;
-      display:flex;
-      flex-direction:column;
-      gap:6px;
-    }
-    .txTop{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-    }
-    .txTime{ color: rgba(255,255,255,0.75); font-size:12px; }
-    .txId{ font-size:12px; }
-    .txBottom{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .pos{ color: var(--ok); font-weight:800; }
-    .neg{ color: var(--bad); font-weight:800; }
 
-    .error{
-      display:none;
-      margin-top:10px;
+    .walletCard::after {
+      content: "₿";
+      position: absolute;
+      right: -20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 140px;
+      font-weight: 700;
+      color: rgba(247,147,26,0.04);
+      pointer-events: none;
+    }
+
+    .walletName {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .walletAddr {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      word-break: break-all;
+      line-height: 1.6;
+    }
+
+    /* Card Stack */
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      backdrop-filter: blur(20px);
+      transition: all 0.3s var(--ease-out);
+    }
+
+    .card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    /* Hero Stats Card */
+    .heroCard {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    }
+
+    .heroHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .heroTitle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .heroDot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--btc);
+      box-shadow: 0 0 12px var(--btc), 0 0 4px var(--btc);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(1.1); }
+    }
+
+    .heroGrid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .heroRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      transition: all 0.2s var(--ease-out);
+    }
+
+    .heroRow:hover {
+      background: rgba(0,0,0,0.35);
+      border-color: rgba(255,255,255,0.1);
+    }
+
+    .heroRow.btc-row { border-left: 3px solid var(--btc); }
+    .heroRow.sats-row { border-left: 3px solid var(--text-secondary); }
+    .heroRow.eur-row { border-left: 3px solid var(--eur); }
+
+    .heroKey {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .heroVal {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      text-align: right;
+    }
+
+    .btcVal { color: var(--btc-soft); }
+    .eurVal { color: #60a5fa; }
+    .satsVal { color: var(--text); }
+
+    .miniBadges {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .miniBadges .pill::before { display: none; }
+    .pill.btc { color: var(--btc-soft); border-color: rgba(247,147,26,0.2); }
+    .pill.eur { color: #60a5fa; border-color: rgba(59,130,246,0.2); }
+    .pill.purple { color: var(--price); border-color: rgba(167,139,250,0.2); }
+
+    .tiny {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 12px;
+      line-height: 1.5;
+    }
+
+    /* Chart Cards */
+    .chartCard {
+      padding: 20px;
+    }
+
+    .title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .title strong {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+    }
+
+    .title .tiny {
+      margin-top: 4px;
+    }
+
+    .chartBox {
+      height: 200px;
+      margin: 0 -8px;
+    }
+
+    .chartBoxSmall {
+      height: 160px;
+      margin: 0 -8px;
+    }
+
+    /* Transaction List */
+    .txList {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .txItem {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      transition: all 0.2s var(--ease-out);
+    }
+
+    .txItem:hover {
+      background: rgba(0,0,0,0.3);
+      border-color: rgba(255,255,255,0.1);
+      transform: translateX(4px);
+    }
+
+    .txTop {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .txTime {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .txId {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 3px 8px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+    }
+
+    .txBottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .txDelta {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .pos { color: var(--ok); }
+    .neg { color: var(--bad); }
+
+    .txStatus .pill::before { display: none; }
+
+    /* Error Box */
+    .error {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 16px;
+      background: rgba(248,113,113,0.1);
+      border: 1px solid rgba(248,113,113,0.2);
+      border-radius: var(--radius-sm);
       color: var(--bad);
       font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      h1 { font-size: 24px; }
+      .walletName { font-size: 26px; }
+      .heroVal { font-size: 18px; }
+      .heroRow { padding: 14px; }
+    }
+
+    /* Loading shimmer */
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    .loading {
+      background: linear-gradient(90deg, 
+        rgba(255,255,255,0.03) 25%, 
+        rgba(255,255,255,0.08) 50%, 
+        rgba(255,255,255,0.03) 75%
+      );
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
     }
   </style>
 </head>
@@ -322,48 +541,48 @@
   <div class="wrap">
 
     <div class="topbar">
-      <div>
-        <h1 id="walletTitle">Bitcoin</h1>
-        <p class="sub" id="walletSub">Wallet</p>
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
+        </div>
+        <div>
+          <h1 id="walletTitle">Bitcoin</h1>
+          <p class="sub" id="walletSub">Wallet</p>
+        </div>
       </div>
 
       <div class="actions">
         <div class="btnRow">
-          <a class="btn btnIcon" id="explorerBtn" target="_blank" rel="noopener" title="Explorer">↗︎</a>
-          <button class="btn btnIcon" id="refreshBtn" title="Aktualisieren">⟳</button>
+          <a class="btn btnIcon" id="explorerBtn" target="_blank" rel="noopener" title="Explorer">↗</a>
+          <button class="btn btnIcon" id="refreshBtn" title="Aktualisieren">↻</button>
         </div>
-        <div class="pillRow">
-          <span class="pill" id="statusPill">…</span>
-          <span class="pill" id="updatedAt">–</span>
-          <span class="pill" id="progress">–</span>
-        </div>
+
       </div>
     </div>
 
     <div class="walletCard" id="walletCard">
       <div class="walletName" id="walletName">—</div>
-      <div class="walletAddr mono" id="walletAddr">—</div>
+      <div class="walletAddr" id="walletAddr">—</div>
     </div>
 
     <div class="stack">
-      <div class="card">
+      <div class="card heroCard">
         <div class="heroHeader">
           <div class="heroTitle"><span class="heroDot"></span>Aktueller Stand</div>
-          <span class="pill btc" id="todayPill">Heute</span>
+          <span class="pill btc" id="todayPill">–</span>
         </div>
 
-        <!-- FIXED: left label + right value (with ids!) -->
         <div class="heroGrid">
-          <div class="heroRow">
-            <div class="heroKey btcVal">BTC</div>
+          <div class="heroRow btc-row">
+            <div class="heroKey">BTC</div>
             <div class="heroVal btcVal" id="heroBtc">–</div>
           </div>
-          <div class="heroRow">
-            <div class="heroKey satsVal">SATS</div>
-            <div class="heroVal satsVal mono" id="heroSats">–</div>
+          <div class="heroRow sats-row">
+            <div class="heroKey">Sats</div>
+            <div class="heroVal satsVal" id="heroSats">–</div>
           </div>
-          <div class="heroRow">
-            <div class="heroKey eurVal">EUR</div>
+          <div class="heroRow eur-row">
+            <div class="heroKey">EUR</div>
             <div class="heroVal eurVal" id="heroEur">–</div>
           </div>
         </div>
@@ -373,40 +592,37 @@
           <span class="pill" id="txCountPill">Bewegungen: –</span>
         </div>
 
-        <div class="tiny" style="margin-top:8px;">
-          „Offen“ sind Bewegungen, die noch nicht bestätigt sind.
-        </div>
 
         <div class="error" id="errBox"></div>
       </div>
 
-      <div class="card">
+      <div class="card chartCard">
         <div class="title">
           <div>
-            <strong style="color:var(--btc2);">Bestand (BTC)</strong>
-            <div class="tiny">Treppenlinie + Punkte an Änderungstagen.</div>
+            <strong style="color:var(--btc-soft);">Bestand</strong>
+            <div class="tiny">BTC-Balance über Zeit</div>
           </div>
           <span class="pill btc" id="chartMeta">–</span>
         </div>
         <div class="chartBox"><canvas id="balanceChart"></canvas></div>
       </div>
 
-      <div class="card">
+      <div class="card chartCard">
         <div class="title">
           <div>
-            <strong style="color:var(--eur2);">Wert (EUR)</strong>
-            <div class="tiny">Bestand × BTC-Preis pro Tag.</div>
+            <strong style="color:#60a5fa;">Wert</strong>
+            <div class="tiny">EUR-Gegenwert pro Tag</div>
           </div>
           <span class="pill eur" id="eurMeta">–</span>
         </div>
         <div class="chartBoxSmall"><canvas id="eurChart"></canvas></div>
       </div>
 
-      <div class="card">
+      <div class="card chartCard">
         <div class="title">
           <div>
-            <strong style="color:var(--price2);">BTC-Preis (EUR)</strong>
-            <div class="tiny">Tageswerte.</div>
+            <strong style="color:var(--price);">BTC-Preis</strong>
+            <div class="tiny">Tageswerte in EUR</div>
           </div>
           <span class="pill purple" id="priceMeta">–</span>
         </div>
@@ -416,8 +632,8 @@
       <div class="card">
         <div class="title">
           <div>
-            <strong>Letzte Bewegungen</strong>
-            <div class="tiny">Plus = erhalten, Minus = gesendet.</div>
+            <strong>Transaktionen</strong>
+            <div class="tiny">Letzte Bewegungen</div>
           </div>
           <span class="pill" id="txMeta">–</span>
         </div>
@@ -428,12 +644,8 @@
   </div>
 
   <script>
-    // HARDCODED WHITELIST: address -> name
-    // IMPORTANT: keys should be lowercase to match normalization
     const ADDRESS_BOOK = Object.freeze({
       "bc1qpl73fwdsankdjz0tcetmndfdjgadr54tqxtya0": "Juna",
-      // "bc1q....": "Cold Wallet",
-      // "bc1q....": "Sparen",
     });
 
     function getParam(name){
@@ -441,7 +653,6 @@
       return url.searchParams.get(name) || "";
     }
 
-    // robust against "bitcoin:" prefix (QR), spaces, uppercase
     function normalizeAddr(a){
       return (a || "")
         .trim()
@@ -454,11 +665,12 @@
 
     if(!WALLET_NAME){
       document.body.innerHTML = `
-        <div style="max-width:520px;margin:40px auto;padding:16px;color:white;
-                    font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial;">
-          <h2 style="margin:0 0 10px 0;">Adresse nicht erlaubt</h2>
-          <p style="opacity:.85;margin:0;">
-            Bitte einen gültigen Link mit <code>?addr=...</code> verwenden.
+        <div style="max-width:520px;margin:80px auto;padding:24px;color:white;
+                    font-family:'DM Sans',system-ui,sans-serif;text-align:center;">
+          <div style="font-size:48px;margin-bottom:16px;opacity:0.3;">₿</div>
+          <h2 style="margin:0 0 12px 0;font-weight:500;">Adresse nicht erlaubt</h2>
+          <p style="opacity:.6;margin:0;font-size:14px;">
+            Bitte einen gültigen Link mit <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">?addr=...</code> verwenden.
           </p>
         </div>`;
       throw new Error("Address not in allowlist");
@@ -468,13 +680,13 @@
     const COINGECKO = "https://api.coingecko.com/api/v3";
 
     const COLORS = {
-      btc:   "#ff8a00",
-      btc2:  "#ffb454",
-      eur:   "#2f7cff",
-      eur2:  "#7fb0ff",
-      price: "#a66bff",
-      grid:  "rgba(255,255,255,0.08)",
-      ticks: "rgba(255,255,255,0.72)"
+      btc:   "#f7931a",
+      btc2:  "#fbbf24",
+      eur:   "#3b82f6",
+      eur2:  "#60a5fa",
+      price: "#a78bfa",
+      grid:  "rgba(255,255,255,0.04)",
+      ticks: "rgba(255,255,255,0.5)"
     };
 
     const el = (id) => document.getElementById(id);
@@ -487,7 +699,6 @@
     }
     function fmtSats(sats){ return new Intl.NumberFormat("de-DE").format(sats); }
 
-    // EUR number only (no € sign)
     function fmtEurNumberOnly(eur){
       return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(eur);
     }
@@ -499,21 +710,21 @@
     }
     function dayKeyFromUnix(ts){
       const d = new Date(ts * 1000);
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,"0");
-      const da = String(d.getDate()).padStart(2,"0");
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth()+1).padStart(2,"0");
+      const da = String(d.getUTCDate()).padStart(2,"0");
       return `${y}-${m}-${da}`;
     }
     function dayKeyFromMs(ms){
       const d = new Date(ms);
-      const y = d.getFullYear();
-      const m = String(d.getMonth()+1).padStart(2,"0");
-      const da = String(d.getDate()).padStart(2,"0");
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth()+1).padStart(2,"0");
+      const da = String(d.getUTCDate()).padStart(2,"0");
       return `${y}-${m}-${da}`;
     }
     function startOfDayUnix(ts){
       const d = new Date(ts*1000);
-      d.setHours(0,0,0,0);
+      d.setUTCHours(0,0,0,0);
       return Math.floor(d.getTime()/1000);
     }
     function addDaysUnix(ts, days){ return ts + (days * 86400); }
@@ -525,16 +736,13 @@
     }
 
     function setStatusLoading(){
-      el("statusPill").textContent = "Lade…";
-      el("statusPill").className = "pill warn";
+      // Status elements removed
     }
     function setStatusOk(){
-      el("statusPill").textContent = "OK";
-      el("statusPill").className = "pill ok";
+      // Status elements removed
     }
     function setStatusError(){
-      el("statusPill").textContent = "Fehler";
-      el("statusPill").className = "pill bad";
+      // Status elements removed
     }
     function showError(msg){
       const box = el("errBox");
@@ -548,7 +756,6 @@
       box.textContent = "";
     }
 
-    // delta = outputs to ADDRESS - inputs from ADDRESS
     function computeDeltaSats(tx){
       let inSats = 0, outSats = 0;
       if(Array.isArray(tx.vin)){
@@ -578,6 +785,10 @@
     }
 
     function makeStepLine(ctx, labels, data, label, changeIdxSet, colorHex){
+      const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+      gradient.addColorStop(0, colorHex + "40");
+      gradient.addColorStop(1, colorHex + "00");
+
       return new Chart(ctx, {
         type:"line",
         data:{
@@ -587,15 +798,16 @@
             data,
             stepped:true,
             tension:0,
-            borderWidth:2.6,
+            borderWidth:2,
             borderColor: colorHex,
-            backgroundColor: colorHex,
-            pointRadius: (c) => changeIdxSet?.has(c.dataIndex) ? 3 : 0,
+            backgroundColor: gradient,
+            fill: true,
+            pointRadius: (c) => changeIdxSet?.has(c.dataIndex) ? 4 : 0,
             pointHoverRadius: 6,
             pointHitRadius: 14,
             pointBackgroundColor: colorHex,
-            pointBorderColor: "rgba(255,255,255,0.85)",
-            pointBorderWidth: 1
+            pointBorderColor: "rgba(255,255,255,0.9)",
+            pointBorderWidth: 2
           }]
         },
         options:{
@@ -603,12 +815,35 @@
           maintainAspectRatio:false,
           plugins:{
             legend:{ display:false },
-            tooltip:{ mode:"index", intersect:false }
+            tooltip:{
+              mode:"index",
+              intersect:false,
+              backgroundColor: "rgba(0,0,0,0.8)",
+              titleFont: { family: "'DM Sans', sans-serif", size: 12 },
+              bodyFont: { family: "'JetBrains Mono', monospace", size: 13 },
+              padding: 12,
+              cornerRadius: 8,
+              borderColor: "rgba(255,255,255,0.1)",
+              borderWidth: 1
+            }
           },
           interaction:{ mode:"index", intersect:false },
           scales:{
-            x:{ ticks:{ maxTicksLimit: 4, color: COLORS.ticks }, grid:{ color: COLORS.grid } },
-            y:{ ticks:{ color: COLORS.ticks }, grid:{ color: COLORS.grid } }
+            x:{
+              ticks:{
+                maxTicksLimit: 5,
+                color: COLORS.ticks,
+                font: { family: "'DM Sans', sans-serif", size: 11 }
+              },
+              grid:{ color: COLORS.grid, drawBorder: false }
+            },
+            y:{
+              ticks:{
+                color: COLORS.ticks,
+                font: { family: "'JetBrains Mono', monospace", size: 11 }
+              },
+              grid:{ color: COLORS.grid, drawBorder: false }
+            }
           }
         }
       });
@@ -635,8 +870,8 @@
         timeEl.textContent = fmtDate(time);
 
         const idEl = document.createElement("div");
-        idEl.className = "txId mono";
-        idEl.textContent = tx.txid.slice(0, 6) + "…" + tx.txid.slice(-4);
+        idEl.className = "txId";
+        idEl.textContent = tx.txid.slice(0, 8) + "…" + tx.txid.slice(-6);
 
         top.appendChild(timeEl);
         top.appendChild(idEl);
@@ -645,12 +880,15 @@
         bottom.className = "txBottom";
 
         const deltaEl = document.createElement("div");
+        deltaEl.className = "txDelta " + (deltaBtc >= 0 ? "pos" : "neg");
         const sign = deltaBtc >= 0 ? "+" : "−";
-        deltaEl.textContent = `${sign}${fmtBtcCompact(Math.abs(deltaBtc))} BTC`; // hier lassen wir BTC dran (Tx-Kontext)
-        deltaEl.className = deltaBtc >= 0 ? "pos mono" : "neg mono";
+        deltaEl.textContent = `${sign}${fmtBtcCompact(Math.abs(deltaBtc))} BTC`;
 
         const statusEl = document.createElement("div");
-        statusEl.innerHTML = isConfirmed ? `<span class="pill">Bestätigt</span>` : `<span class="pill">Offen</span>`;
+        statusEl.className = "txStatus";
+        statusEl.innerHTML = isConfirmed
+          ? `<span class="pill" style="color:var(--ok);border-color:rgba(52,211,153,0.2);">Bestätigt</span>`
+          : `<span class="pill" style="color:var(--warn);border-color:rgba(251,191,36,0.2);">Offen</span>`;
 
         bottom.appendChild(deltaEl);
         bottom.appendChild(statusEl);
@@ -679,7 +917,6 @@
         all.push(...chunk);
         lastSeen = chunk[chunk.length - 1].txid;
 
-        el("progress").textContent = `${all.length} bestätigt`;
         if(page > 500) break;
       }
       return all;
@@ -708,7 +945,8 @@
 
       for(let d = startDay; d <= todayDay; d = addDaysUnix(d, 1)){
         runningSats += (deltasByDay.get(d) || 0);
-        labels.push(new Date(d*1000).toLocaleDateString("de-DE", { day:"2-digit", month:"short" }));
+        const dateObj = new Date(d*1000);
+        labels.push(dateObj.toLocaleDateString("de-DE", { day:"2-digit", month:"short", timeZone: "UTC" }));
         balancesBtc.push(satsToBtcNum(runningSats));
       }
 
@@ -736,18 +974,19 @@
       destroyCharts();
       clearError();
 
-      el("walletTitle").textContent = "Bitcoin Wallet";
-      el("walletSub").textContent = "";
+      el("walletTitle").textContent = "Bitcoin";
+      el("walletSub").textContent = "Wallet";
 
-      document.title = `Bitcoin – ${WALLET_NAME}`;
+      document.title = `${WALLET_NAME} · Bitcoin`;
 
       el("walletName").textContent = WALLET_NAME;
       el("walletAddr").textContent = ADDRESS;
 
       el("explorerBtn").href = `https://mempool.space/address/${ADDRESS}`;
-      el("updatedAt").textContent = new Date().toLocaleString("de-DE", { dateStyle:"short", timeStyle:"short" });
+      
+      // Set current date in todayPill
+      el("todayPill").textContent = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-      el("progress").textContent = "…";
       setStatusLoading();
 
       try{
@@ -759,17 +998,15 @@
         const confirmedBtc = satsToBtcNum(confirmedSats);
         const pendingBtc = satsToBtcNum(pendingSats);
 
-        // VALUES WITHOUT UNITS
         el("heroBtc").textContent = `${fmtBtcCompact(confirmedBtc)}`;
         el("heroSats").textContent = `${fmtSats(confirmedSats)}`;
-        el("pendingPill").textContent = `Offen: ${fmtBtcCompact(pendingBtc)} BTC`; // hier lassen wir BTC dran
+        el("pendingPill").textContent = `Offen: ${fmtBtcCompact(pendingBtc)} BTC`;
         el("txCountPill").textContent = `Bewegungen: ${new Intl.NumberFormat("de-DE").format(txCount)}`;
 
         const recent = await fetchJson(`${MEMPOOL}/address/${ADDRESS}/txs`);
         el("txMeta").textContent = `${Math.min(recent.length, 25)} geladen`;
         renderTxList(recent);
 
-        el("progress").textContent = "Historie…";
         const confirmedAll = await fetchAllConfirmedTxs();
 
         const confirmedAsc = confirmedAll
@@ -801,7 +1038,6 @@
           eurValues.push(balancesBtc[i] * p);
         }
 
-        // HERO EUR: number only (no €)
         el("heroEur").textContent = lastPrice ? fmtEurNumberOnly(confirmedBtc * lastPrice) : "—";
 
         el("eurMeta").textContent = `${labels.length} Tage`;
@@ -828,7 +1064,6 @@
           changeIdxSet, COLORS.price
         );
 
-        el("progress").textContent = `${confirmedAll.length} bestätigt`;
         setStatusOk();
 
       }catch(e){
