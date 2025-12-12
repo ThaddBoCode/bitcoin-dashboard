@@ -1,1 +1,763 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Bitcoin – Überblick (Mobile)</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg0:#070b14;
+      --bg1:#0b1220;
+
+      --card: rgba(255,255,255,0.07);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.68);
+      --border: rgba(255,255,255,0.12);
+
+      --ok: rgba(56,211,159,0.95);
+      --warn: rgba(255,204,102,0.95);
+      --bad: rgba(255,107,107,0.95);
+
+      --btc: #ff8a00;
+      --btc2:#ffb454;
+      --eur:#2f7cff;
+      --eur2:#7fb0ff;
+      --price:#a66bff;
+      --price2:#d1b7ff;
+
+      --grid: rgba(255,255,255,0.08);
+      --ticks: rgba(255,255,255,0.72);
+    }
+
+    *{ box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 15% 0%, rgba(255,138,0,0.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 0%, rgba(47,124,255,0.18), transparent 60%),
+        radial-gradient(900px 500px at 50% 100%, rgba(166,107,255,0.14), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+    }
+
+    .wrap{
+      max-width: 520px;   /* mobile centered */
+      margin: 0 auto;
+      padding: max(14px, env(safe-area-inset-top)) 12px 26px;
+    }
+
+    /* HEADER: compact & sticky-like feeling */
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+    h1{
+      margin:0;
+      font-size:16px;
+      letter-spacing:.2px;
+      line-height:1.15;
+    }
+    .sub{
+      margin:6px 0 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    .actions{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      align-items:flex-end;
+      min-width: 148px;
+    }
+    .btnRow{
+      display:flex;
+      gap:8px;
+    }
+    button, a.btn{
+      appearance:none;
+      border:1px solid var(--border);
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+      padding:9px 10px;
+      border-radius:12px;
+      font-size:12px;
+      cursor:pointer;
+      text-decoration:none;
+      white-space:nowrap;
+    }
+    .btnIcon{
+      padding:9px 10px;
+      width:44px;
+      text-align:center;
+    }
+    button:active{ transform: translateY(1px); }
+
+    .pillRow{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(0,0,0,0.18);
+      color: rgba(255,255,255,0.86);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    #statusPill.ok{ border-color: rgba(56,211,159,0.45); color: var(--ok); }
+    #statusPill.warn{ border-color: rgba(255,204,102,0.45); color: var(--warn); }
+    #statusPill.bad{ border-color: rgba(255,107,107,0.45); color: var(--bad); }
+
+    .addr{
+      margin-top:10px;
+      font-size:11px;
+      color: rgba(255,255,255,0.86);
+      border:1px solid var(--border);
+      background: rgba(0,0,0,0.18);
+      border-radius: 14px;
+      padding: 10px 12px;
+      word-break: break-all;
+    }
+
+    .stack{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 12px;
+      position:relative;
+      overflow:hidden;
+    }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-2px;
+      background:
+        radial-gradient(800px 260px at 10% 0%, rgba(255,138,0,0.08), transparent 55%),
+        radial-gradient(800px 260px at 90% 0%, rgba(47,124,255,0.08), transparent 55%),
+        radial-gradient(900px 340px at 50% 120%, rgba(166,107,255,0.06), transparent 65%);
+      pointer-events:none;
+    }
+    .card > *{ position:relative; }
+
+    /* HERO */
+    .heroHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .heroTitle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:900;
+      letter-spacing:.2px;
+      font-size:13px;
+    }
+    .heroDot{
+      width:10px; height:10px; border-radius:999px;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--btc));
+      box-shadow: 0 0 0 4px rgba(255,138,0,0.12);
+      flex:0 0 auto;
+    }
+
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:8px;
+      margin-top:6px;
+    }
+    .heroRow{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.14);
+      border-radius: 14px;
+      padding: 10px 10px;
+    }
+    .heroKey{ color: var(--muted); font-size:12px; }
+    .heroVal{
+      font-weight:900;
+      font-size: 16px;
+      letter-spacing:.2px;
+      text-align:right;
+      word-break: break-word;
+    }
+    .btcVal{ color: var(--btc2); }
+    .eurVal{ color: var(--eur2); }
+    .satsVal{ color: rgba(255,255,255,0.9); }
+    .mono{ font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; }
+
+    .miniBadges{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .pill.btc { border-color: rgba(255,138,0,0.35); }
+    .pill.eur { border-color: rgba(47,124,255,0.35); }
+    .pill.purple { border-color: rgba(166,107,255,0.35); }
+
+    /* CHART cards */
+    .title{
+      display:flex;
+      align-items:baseline;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom: 6px;
+    }
+    .title strong{ font-size: 13px; }
+    .tiny{ font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+    .chartBox{ height: 220px; }
+    .chartBoxSmall{ height: 170px; }
+
+    /* TABLE: mobile-friendly (stacked rows) */
+    .txList{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:10px;
+    }
+    .txItem{
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(0,0,0,0.14);
+      border-radius: 14px;
+      padding: 10px 10px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+    .txTop{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+    }
+    .txTime{ color: rgba(255,255,255,0.75); font-size:12px; }
+    .txId{ font-size:12px; }
+    .txBottom{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .pos{ color: var(--ok); font-weight:800; }
+    .neg{ color: var(--bad); font-weight:800; }
+
+    .error{
+      display:none;
+      margin-top:10px;
+      color: var(--bad);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div>
+        <h1>Bitcoin – Überblick</h1>
+        <p class="sub">Mobile Ansicht</p>
+      </div>
+
+      <div class="actions">
+        <div class="btnRow">
+          <a class="btn btnIcon" id="explorerBtn" target="_blank" rel="noopener" title="Explorer">↗︎</a>
+          <button class="btn btnIcon" id="refreshBtn" title="Aktualisieren">⟳</button>
+        </div>
+        <div class="pillRow">
+          <span class="pill" id="statusPill">…</span>
+          <span class="pill" id="updatedAt">–</span>
+          <span class="pill" id="progress">–</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="addr" id="addrBox"></div>
+
+    <div class="stack">
+      <!-- HERO -->
+      <div class="card">
+        <div class="heroHeader">
+          <div class="heroTitle"><span class="heroDot"></span>Aktueller Stand</div>
+          <span class="pill btc" id="todayPill">Heute</span>
+        </div>
+
+        <div class="heroGrid">
+          <div class="heroRow">
+            <div class="heroKey">BTC:</div>
+            <div class="heroVal btcVal" id="heroBtc">–</div>
+          </div>
+          <div class="heroRow">
+            <div class="heroKey">SATS:</div>
+            <div class="heroVal satsVal mono" id="heroSats">–</div>
+          </div>
+          <div class="heroRow">
+            <div class="heroKey">EUR:</div>
+            <div class="heroVal eurVal" id="heroEur">–</div>
+          </div>
+        </div>
+
+        <div class="miniBadges">
+          <span class="pill btc" id="pendingPill">Offen: –</span>
+          <span class="pill" id="txCountPill">Bewegungen: –</span>
+        </div>
+
+        <div class="tiny" style="margin-top:8px;">
+          „Offen“ sind Bewegungen, die noch nicht bestätigt sind.
+        </div>
+
+        <div class="error" id="errBox"></div>
+      </div>
+
+      <!-- BTC BALANCE -->
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong style="color:var(--btc2);">Bestand (BTC)</strong>
+            <div class="tiny">Treppenlinie + Punkte an Änderungstagen.</div>
+          </div>
+          <span class="pill btc" id="chartMeta">–</span>
+        </div>
+        <div class="chartBox"><canvas id="balanceChart"></canvas></div>
+      </div>
+
+      <!-- EUR VALUE -->
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong style="color:var(--eur2);">Wert (EUR)</strong>
+            <div class="tiny">Bestand × BTC-Preis pro Tag.</div>
+          </div>
+          <span class="pill eur" id="eurMeta">–</span>
+        </div>
+        <div class="chartBoxSmall"><canvas id="eurChart"></canvas></div>
+      </div>
+
+      <!-- PRICE -->
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong style="color:var(--price2);">BTC-Preis (EUR)</strong>
+            <div class="tiny">Tageswerte.</div>
+          </div>
+          <span class="pill purple" id="priceMeta">–</span>
+        </div>
+        <div class="chartBoxSmall"><canvas id="priceChart"></canvas></div>
+      </div>
+
+      <!-- TX LIST -->
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong>Letzte Bewegungen</strong>
+            <div class="tiny">Plus = erhalten, Minus = gesendet.</div>
+          </div>
+          <span class="pill" id="txMeta">–</span>
+        </div>
+
+        <div class="txList" id="txList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADDRESS = "bc1qpl73fwdsankdjz0tcetmndfdjgadr54tqxtya0";
+    const MEMPOOL = "https://mempool.space/api";
+    const COINGECKO = "https://api.coingecko.com/api/v3";
+
+    const COLORS = {
+      btc:   "#ff8a00",
+      btc2:  "#ffb454",
+      eur:   "#2f7cff",
+      eur2:  "#7fb0ff",
+      price: "#a66bff",
+      grid:  "rgba(255,255,255,0.08)",
+      ticks: "rgba(255,255,255,0.72)"
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    function satsToBtcNum(sats){ return sats / 100_000_000; }
+    function fmtBtcCompact(btc){
+      const abs = Math.abs(btc);
+      const digits = abs >= 1 ? 6 : 8;
+      return btc.toFixed(digits).replace(/0+$/,'').replace(/\.$/,'');
+    }
+    function fmtSats(sats){ return new Intl.NumberFormat("de-DE").format(sats); }
+    function fmtEur(eur){
+      return new Intl.NumberFormat("de-DE", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(eur);
+    }
+    function fmtDate(ts){
+      if(!ts) return "—";
+      const d = new Date(ts * 1000);
+      return d.toLocaleString("de-DE", { dateStyle:"medium", timeStyle:"short" });
+    }
+    function dayKeyFromUnix(ts){
+      const d = new Date(ts * 1000);
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const da = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${da}`;
+    }
+    function dayKeyFromMs(ms){
+      const d = new Date(ms);
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,"0");
+      const da = String(d.getDate()).padStart(2,"0");
+      return `${y}-${m}-${da}`;
+    }
+    function startOfDayUnix(ts){
+      const d = new Date(ts*1000);
+      d.setHours(0,0,0,0);
+      return Math.floor(d.getTime()/1000);
+    }
+    function addDaysUnix(ts, days){ return ts + (days * 86400); }
+
+    async function fetchJson(url){
+      const r = await fetch(url, { cache:"no-store" });
+      if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    }
+
+    function setStatusLoading(){
+      el("statusPill").textContent = "Lade…";
+      el("statusPill").className = "pill warn";
+    }
+    function setStatusOk(){
+      el("statusPill").textContent = "OK";
+      el("statusPill").className = "pill ok";
+    }
+    function setStatusError(){
+      el("statusPill").textContent = "Fehler";
+      el("statusPill").className = "pill bad";
+    }
+    function showError(msg){
+      const box = el("errBox");
+      box.style.display = "block";
+      box.textContent = msg;
+      setStatusError();
+    }
+    function clearError(){
+      const box = el("errBox");
+      box.style.display = "none";
+      box.textContent = "";
+    }
+
+    // delta = outputs to ADDRESS - inputs from ADDRESS
+    function computeDeltaSats(tx){
+      let inSats = 0, outSats = 0;
+      if(Array.isArray(tx.vin)){
+        for(const vin of tx.vin){
+          const prev = vin.prevout;
+          if(prev && prev.scriptpubkey_address === ADDRESS){
+            inSats += (prev.value || 0);
+          }
+        }
+      }
+      if(Array.isArray(tx.vout)){
+        for(const vout of tx.vout){
+          if(vout.scriptpubkey_address === ADDRESS){
+            outSats += (vout.value || 0);
+          }
+        }
+      }
+      return outSats - inSats;
+    }
+
+    // Charts
+    let balanceChart, eurChart, priceChart;
+    function destroyCharts(){
+      if(balanceChart) balanceChart.destroy();
+      if(eurChart) eurChart.destroy();
+      if(priceChart) priceChart.destroy();
+      balanceChart = eurChart = priceChart = null;
+    }
+
+    function makeStepLine(ctx, labels, data, label, changeIdxSet, colorHex){
+      return new Chart(ctx, {
+        type:"line",
+        data:{
+          labels,
+          datasets:[{
+            label,
+            data,
+            stepped:true,
+            tension:0,
+            borderWidth:2.6,
+            borderColor: colorHex,
+            backgroundColor: colorHex,
+
+            pointRadius: (c) => changeIdxSet?.has(c.dataIndex) ? 3 : 0,
+            pointHoverRadius: 6,
+            pointHitRadius: 14,
+            pointBackgroundColor: colorHex,
+            pointBorderColor: "rgba(255,255,255,0.85)",
+            pointBorderWidth: 1
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{
+            legend:{ display:false }, /* mobile: hide legend */
+            tooltip:{ mode:"index", intersect:false }
+          },
+          interaction:{ mode:"index", intersect:false },
+          scales:{
+            x:{ ticks:{ maxTicksLimit: 4, color: COLORS.ticks }, grid:{ color: COLORS.grid } },
+            y:{ ticks:{ color: COLORS.ticks }, grid:{ color: COLORS.grid } }
+          }
+        }
+      });
+    }
+
+    // TX list rendering (mobile cards)
+    function renderTxList(txs){
+      const list = el("txList");
+      list.innerHTML = "";
+
+      for(const tx of txs.slice(0, 10)){
+        const delta = computeDeltaSats(tx);
+        const deltaBtc = satsToBtcNum(delta);
+        const isConfirmed = !!tx.status?.confirmed;
+        const time = isConfirmed ? tx.status.block_time : (tx.status?.block_time || null);
+
+        const item = document.createElement("div");
+        item.className = "txItem";
+
+        const top = document.createElement("div");
+        top.className = "txTop";
+
+        const timeEl = document.createElement("div");
+        timeEl.className = "txTime";
+        timeEl.textContent = fmtDate(time);
+
+        const idEl = document.createElement("div");
+        idEl.className = "txId mono";
+        idEl.textContent = tx.txid.slice(0, 6) + "…" + tx.txid.slice(-4);
+
+        top.appendChild(timeEl);
+        top.appendChild(idEl);
+
+        const bottom = document.createElement("div");
+        bottom.className = "txBottom";
+
+        const deltaEl = document.createElement("div");
+        const sign = deltaBtc >= 0 ? "+" : "−";
+        deltaEl.textContent = `${sign}${fmtBtcCompact(Math.abs(deltaBtc))} BTC`;
+        deltaEl.className = deltaBtc >= 0 ? "pos mono" : "neg mono";
+
+        const statusEl = document.createElement("div");
+        statusEl.innerHTML = isConfirmed ? `<span class="pill">Bestätigt</span>` : `<span class="pill">Offen</span>`;
+
+        bottom.appendChild(deltaEl);
+        bottom.appendChild(statusEl);
+
+        item.appendChild(top);
+        item.appendChild(bottom);
+
+        list.appendChild(item);
+      }
+    }
+
+    // Fetch all confirmed txs with paging
+    async function fetchAllConfirmedTxs(){
+      const all = [];
+      let lastSeen = null;
+      let page = 0;
+
+      while(true){
+        page++;
+        const url = lastSeen
+          ? `${MEMPOOL}/address/${ADDRESS}/txs/chain/${lastSeen}`
+          : `${MEMPOOL}/address/${ADDRESS}/txs/chain`;
+
+        const chunk = await fetchJson(url);
+        if(!Array.isArray(chunk) || chunk.length === 0) break;
+
+        all.push(...chunk);
+        lastSeen = chunk[chunk.length - 1].txid;
+
+        el("progress").textContent = `${all.length} bestätigt`;
+        if(page > 500) break;
+      }
+      return all;
+    }
+
+    function buildDailyStepSeriesFromTxs(confirmedTxsAsc){
+      const deltasByDay = new Map();
+      let firstTs = null;
+
+      for(const tx of confirmedTxsAsc){
+        const ts = tx.status?.block_time;
+        if(!ts) continue;
+        if(firstTs == null || ts < firstTs) firstTs = ts;
+
+        const day = startOfDayUnix(ts);
+        const delta = computeDeltaSats(tx);
+        deltasByDay.set(day, (deltasByDay.get(day) || 0) + delta);
+      }
+
+      const todayDay = startOfDayUnix(Math.floor(Date.now()/1000));
+      const startDay = firstTs ? startOfDayUnix(firstTs) : todayDay;
+
+      const labels = [];
+      const balancesBtc = [];
+      let runningSats = 0;
+
+      for(let d = startDay; d <= todayDay; d = addDaysUnix(d, 1)){
+        runningSats += (deltasByDay.get(d) || 0);
+
+        // mobile labels: shorter
+        labels.push(new Date(d*1000).toLocaleDateString("de-DE", { day:"2-digit", month:"short" }));
+        balancesBtc.push(satsToBtcNum(runningSats));
+      }
+
+      const changeIdxSet = new Set();
+      for(let i=0;i<labels.length;i++){
+        const dayUnix = startDay + i*86400;
+        if(deltasByDay.get(dayUnix)) changeIdxSet.add(i);
+      }
+
+      return { startDay, todayDay, labels, balancesBtc, changeIdxSet };
+    }
+
+    async function fetchBtcEurPriceMap(fromUnix, toUnix){
+      const url = `${COINGECKO}/coins/bitcoin/market_chart/range?vs_currency=eur&from=${fromUnix}&to=${toUnix}`;
+      const data = await fetchJson(url);
+
+      const priceMap = new Map();
+      for(const [ms, price] of (data.prices || [])){
+        priceMap.set(dayKeyFromMs(ms), price);
+      }
+      return priceMap;
+    }
+
+    async function load(){
+      destroyCharts();
+      clearError();
+
+      el("addrBox").textContent = ADDRESS;
+      el("explorerBtn").href = `https://mempool.space/address/${ADDRESS}`;
+      el("updatedAt").textContent = new Date().toLocaleString("de-DE", { dateStyle:"short", timeStyle:"short" });
+
+      el("progress").textContent = "…";
+      setStatusLoading();
+
+      try{
+        const addr = await fetchJson(`${MEMPOOL}/address/${ADDRESS}`);
+        const confirmedSats = (addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum) || 0;
+        const pendingSats   = (addr.mempool_stats.funded_txo_sum - addr.mempool_stats.spent_txo_sum) || 0;
+        const txCount = (addr.chain_stats.tx_count || 0) + (addr.mempool_stats.tx_count || 0);
+
+        const confirmedBtc = satsToBtcNum(confirmedSats);
+        const pendingBtc = satsToBtcNum(pendingSats);
+
+        el("heroBtc").textContent = `${fmtBtcCompact(confirmedBtc)} BTC`;
+        el("heroSats").textContent = `${fmtSats(confirmedSats)} sats`;
+        el("pendingPill").textContent = `Offen: ${fmtBtcCompact(pendingBtc)} BTC`;
+        el("txCountPill").textContent = `Bewegungen: ${new Intl.NumberFormat("de-DE").format(txCount)}`;
+
+        const recent = await fetchJson(`${MEMPOOL}/address/${ADDRESS}/txs`);
+        el("txMeta").textContent = `${Math.min(recent.length, 25)} geladen`;
+        renderTxList(recent);
+
+        el("progress").textContent = "Historie…";
+        const confirmedAll = await fetchAllConfirmedTxs();
+
+        const confirmedAsc = confirmedAll
+          .filter(t => t.status?.confirmed && t.status.block_time)
+          .sort((a,b) => a.status.block_time - b.status.block_time);
+
+        const { startDay, todayDay, labels, balancesBtc, changeIdxSet } =
+          buildDailyStepSeriesFromTxs(confirmedAsc);
+
+        el("chartMeta").textContent = `${labels.length} Tage`;
+
+        const priceMap = await fetchBtcEurPriceMap(startDay, todayDay + 86399);
+
+        const eurValues = [];
+        const prices = [];
+        let lastPrice = null;
+
+        for(let i=0;i<labels.length;i++){
+          const dayUnix = startDay + i*86400;
+          const key = dayKeyFromUnix(dayUnix);
+
+          let p = priceMap.get(key);
+          if(p == null) p = lastPrice;
+          if(p == null) p = 0;
+
+          lastPrice = p;
+
+          prices.push(p);
+          eurValues.push(balancesBtc[i] * p);
+        }
+
+        el("heroEur").textContent = lastPrice ? fmtEur(confirmedBtc * lastPrice) : "—";
+
+        el("eurMeta").textContent = `${labels.length} Tage`;
+        el("priceMeta").textContent = `${labels.length} Tage`;
+
+        balanceChart = makeStepLine(
+          el("balanceChart").getContext("2d"),
+          labels, balancesBtc,
+          "Bestand (BTC)",
+          changeIdxSet, COLORS.btc
+        );
+
+        eurChart = makeStepLine(
+          el("eurChart").getContext("2d"),
+          labels, eurValues,
+          "Wert (EUR)",
+          changeIdxSet, COLORS.eur
+        );
+
+        priceChart = makeStepLine(
+          el("priceChart").getContext("2d"),
+          labels, prices,
+          "BTC-Preis (EUR)",
+          changeIdxSet, COLORS.price
+        );
+
+        el("progress").textContent = `${confirmedAll.length} bestätigt`;
+        setStatusOk();
+
+      }catch(e){
+        showError("Konnte Daten nicht laden: " + (e?.message || e));
+      }
+    }
+
+    el("refreshBtn").addEventListener("click", load);
+    load();
+  </script>
+</body>
+</html>
 
