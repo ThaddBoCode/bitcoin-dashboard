@@ -7,94 +7,99 @@
   <meta name="apple-mobile-web-app-title" content="Bitcoin">
   <title>Bitcoin</title>
 
-  <!-- Premium Typography -->
+  <!-- Digital Mono Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     :root {
-      --bg0: #05080f;
-      --bg1: #0a0f1a;
-      --bg2: #0f1520;
+      --bg: #0a0a0f;
+      --bg-card: rgba(15, 15, 25, 0.85);
+      --bg-inner: rgba(0, 0, 0, 0.4);
 
-      --card: rgba(255,255,255,0.03);
-      --card-border: rgba(255,255,255,0.06);
-      --card-hover: rgba(255,255,255,0.05);
+      --text: #e0e0e0;
+      --text-dim: rgba(255, 255, 255, 0.5);
+      --text-bright: #ffffff;
 
-      --text: rgba(255,255,255,0.95);
-      --text-secondary: rgba(255,255,255,0.6);
-      --text-muted: rgba(255,255,255,0.4);
+      --neon-orange: #ff6b00;
+      --neon-orange-glow: rgba(255, 107, 0, 0.6);
+      --neon-cyan: #00f0ff;
+      --neon-cyan-glow: rgba(0, 240, 255, 0.5);
+      --neon-purple: #bf00ff;
+      --neon-purple-glow: rgba(191, 0, 255, 0.5);
+      --neon-green: #00ff88;
+      --neon-red: #ff3366;
 
-      --ok: #34d399;
-      --warn: #fbbf24;
-      --bad: #f87171;
+      --border: rgba(255, 107, 0, 0.2);
+      --border-bright: rgba(255, 107, 0, 0.5);
 
-      --btc: #f7931a;
-      --btc-glow: rgba(247,147,26,0.15);
-      --btc-soft: rgba(247,147,26,0.8);
-      --eur: #3b82f6;
-      --eur-glow: rgba(59,130,246,0.15);
-      --price: #a78bfa;
-      --price-glow: rgba(167,139,250,0.15);
-
-      --glass: rgba(255,255,255,0.02);
-      --glass-border: rgba(255,255,255,0.08);
-
-      --radius-sm: 10px;
-      --radius-md: 16px;
-      --radius-lg: 24px;
-      --radius-xl: 32px;
-
-      --font-display: 'Instrument Serif', Georgia, serif;
-      --font-body: 'DM Sans', system-ui, sans-serif;
-      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-
-      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --font-display: 'Orbitron', monospace;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: var(--font-body);
+      font-weight: 500;
       color: var(--text);
-      background: var(--bg0);
+      background: var(--bg);
       min-height: 100vh;
-      line-height: 1.5;
+      line-height: 1.4;
       -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
     }
 
-    /* Ambient background */
+    /* Cyber grid background */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background:
-        radial-gradient(ellipse 100% 60% at 0% 0%, rgba(247,147,26,0.08), transparent 50%),
-        radial-gradient(ellipse 80% 50% at 100% 0%, rgba(59,130,246,0.06), transparent 50%),
-        radial-gradient(ellipse 90% 50% at 50% 100%, rgba(167,139,250,0.05), transparent 50%);
+      background-image: 
+        linear-gradient(rgba(255, 107, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 107, 0, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
       pointer-events: none;
-      z-index: -1;
+      z-index: -2;
     }
 
-    /* Noise texture overlay */
+    /* Ambient glow */
     body::after {
       content: "";
       position: fixed;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-      opacity: 0.03;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(255, 107, 0, 0.12), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 240, 255, 0.08), transparent 50%);
       pointer-events: none;
       z-index: -1;
+    }
+
+    /* Scanline effect */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
     }
 
     .wrap {
       max-width: 540px;
       margin: 0 auto;
       padding: max(20px, env(safe-area-inset-top)) 16px 40px;
+      position: relative;
     }
 
     /* Header */
@@ -109,134 +114,107 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
     .brand-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-md);
-      background: linear-gradient(135deg, var(--btc) 0%, #e67e00 100%);
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--neon-orange) 0%, #cc5500 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 32px var(--btc-glow), inset 0 1px 0 rgba(255,255,255,0.2);
+      position: relative;
+      box-shadow: 
+        0 0 20px var(--neon-orange-glow),
+        0 0 40px rgba(255, 107, 0, 0.3),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+      animation: iconPulse 3s ease-in-out infinite;
     }
 
-    .brand-icon svg {
-      width: 24px;
-      height: 24px;
-      fill: white;
+    @keyframes iconPulse {
+      0%, 100% { box-shadow: 0 0 20px var(--neon-orange-glow), 0 0 40px rgba(255, 107, 0, 0.3); }
+      50% { box-shadow: 0 0 30px var(--neon-orange-glow), 0 0 60px rgba(255, 107, 0, 0.4); }
+    }
+
+    .brand-icon::before {
+      content: "₿";
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 0 10px rgba(255,255,255,0.5);
     }
 
     h1 {
       font-family: var(--font-display);
-      font-size: 28px;
-      font-weight: 400;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-bright);
+      text-shadow: 0 0 20px var(--neon-orange-glow);
     }
 
     .sub {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 2px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
     }
 
     .actions {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: flex-end;
-    }
-
-    .btnRow {
       display: flex;
       gap: 8px;
     }
 
     button, a.btn {
       appearance: none;
-      border: 1px solid var(--glass-border);
-      background: var(--glass);
-      backdrop-filter: blur(12px);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-family: var(--font-body);
-      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--bg-inner);
+      color: var(--neon-orange);
+      padding: 12px 14px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 14px;
       cursor: pointer;
       text-decoration: none;
-      white-space: nowrap;
-      transition: all 0.2s var(--ease-out);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before, a.btn::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 40%, rgba(255, 107, 0, 0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.2s;
     }
 
     button:hover, a.btn:hover {
-      background: var(--card-hover);
-      border-color: rgba(255,255,255,0.12);
-      transform: translateY(-1px);
+      border-color: var(--neon-orange);
+      box-shadow: 0 0 15px var(--neon-orange-glow), inset 0 0 15px rgba(255, 107, 0, 0.1);
+      text-shadow: 0 0 10px var(--neon-orange-glow);
     }
 
-    button:active {
-      transform: translateY(0);
+    button:hover::before, a.btn:hover::before {
+      opacity: 1;
     }
-
-    .btnIcon {
-      width: 40px;
-      padding: 10px;
-      text-align: center;
-      font-size: 16px;
-    }
-
-    .pillRow {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 100px;
-      background: rgba(0,0,0,0.3);
-      border: 1px solid var(--glass-border);
-      color: var(--text-secondary);
-      font-size: 11px;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-      transition: all 0.2s var(--ease-out);
-    }
-
-    .pill::before {
-      content: "";
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-      opacity: 0.6;
-    }
-
-    #statusPill.ok { color: var(--ok); border-color: rgba(52,211,153,0.2); }
-    #statusPill.ok::before { background: var(--ok); opacity: 1; box-shadow: 0 0 8px var(--ok); }
-    #statusPill.warn { color: var(--warn); border-color: rgba(251,191,36,0.2); }
-    #statusPill.warn::before { background: var(--warn); opacity: 1; }
-    #statusPill.bad { color: var(--bad); border-color: rgba(248,113,113,0.2); }
-    #statusPill.bad::before { background: var(--bad); opacity: 1; }
 
     /* Wallet Identity Card */
     .walletCard {
       position: relative;
       padding: 24px;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(135deg, rgba(247,147,26,0.08) 0%, rgba(247,147,26,0.02) 100%);
-      border: 1px solid rgba(247,147,26,0.15);
-      overflow: hidden;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
       margin-bottom: 20px;
+      overflow: hidden;
     }
 
     .walletCard::before {
@@ -244,39 +222,46 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(180deg, var(--btc) 0%, rgba(247,147,26,0.3) 100%);
-      border-radius: 4px 0 0 4px;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon-orange), transparent);
+      animation: scanLine 3s linear infinite;
+    }
+
+    @keyframes scanLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
     }
 
     .walletCard::after {
-      content: "₿";
+      content: "";
       position: absolute;
-      right: -20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 140px;
-      font-weight: 700;
-      color: rgba(247,147,26,0.04);
-      pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--neon-orange);
+      box-shadow: 0 0 15px var(--neon-orange-glow);
     }
 
     .walletName {
       font-family: var(--font-display);
       font-size: 32px;
-      font-weight: 400;
-      letter-spacing: -0.02em;
-      color: var(--text);
-      margin-bottom: 8px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-bright);
+      text-shadow: 0 0 30px var(--neon-orange-glow);
+      margin-bottom: 12px;
     }
 
     .walletAddr {
       font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-muted);
+      color: var(--neon-cyan);
       word-break: break-all;
-      line-height: 1.6;
+      line-height: 1.8;
+      text-shadow: 0 0 10px var(--neon-cyan-glow);
+      opacity: 0.8;
     }
 
     /* Card Stack */
@@ -288,24 +273,38 @@
 
     .card {
       position: relative;
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius-lg);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
       padding: 20px;
-      backdrop-filter: blur(20px);
-      transition: all 0.3s var(--ease-out);
+      overflow: hidden;
     }
 
-    .card:hover {
-      background: var(--card-hover);
-      border-color: rgba(255,255,255,0.1);
+    /* Corner accents */
+    .card::before,
+    .card::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-style: solid;
+      border-color: var(--neon-orange);
+      opacity: 0.5;
+    }
+
+    .card::before {
+      top: 0;
+      left: 0;
+      border-width: 2px 0 0 2px;
+    }
+
+    .card::after {
+      bottom: 0;
+      right: 0;
+      border-width: 0 2px 2px 0;
     }
 
     /* Hero Stats Card */
-    .heroCard {
-      background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-    }
-
     .heroHeader {
       display: flex;
       align-items: center;
@@ -316,100 +315,120 @@
     .heroTitle {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 13px;
+      gap: 12px;
+      font-family: var(--font-display);
+      font-size: 11px;
       font-weight: 600;
-      letter-spacing: 0.03em;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: var(--text-secondary);
+      color: var(--text-dim);
     }
 
     .heroDot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--btc);
-      box-shadow: 0 0 12px var(--btc), 0 0 4px var(--btc);
-      animation: pulse 2s ease-in-out infinite;
+      width: 10px;
+      height: 10px;
+      background: var(--neon-orange);
+      box-shadow: 0 0 10px var(--neon-orange-glow), 0 0 20px var(--neon-orange-glow);
+      animation: blink 1.5s ease-in-out infinite;
     }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(1.1); }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .datePill {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--neon-cyan);
+      padding: 6px 12px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      text-shadow: 0 0 10px var(--neon-cyan-glow);
     }
 
     .heroGrid {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
     }
 
     .heroRow {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 18px;
-      background: rgba(0,0,0,0.25);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-md);
-      transition: all 0.2s var(--ease-out);
+      padding: 16px 20px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
     }
 
-    .heroRow:hover {
-      background: rgba(0,0,0,0.35);
-      border-color: rgba(255,255,255,0.1);
+    .heroRow::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
     }
 
-    .heroRow.btc-row { border-left: 3px solid var(--btc); }
-    .heroRow.sats-row { border-left: 3px solid var(--text-secondary); }
-    .heroRow.eur-row { border-left: 3px solid var(--eur); }
+    .heroRow.btc-row::before { background: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange-glow); }
+    .heroRow.sats-row::before { background: var(--text-dim); }
+    .heroRow.eur-row::before { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan-glow); }
 
     .heroKey {
+      font-family: var(--font-display);
       font-size: 12px;
       font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--text-secondary);
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
     }
 
     .heroVal {
       font-family: var(--font-mono);
-      font-size: 20px;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      text-align: right;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
     }
 
-    .btcVal { color: var(--btc-soft); }
-    .eurVal { color: #60a5fa; }
-    .satsVal { color: var(--text); }
+    .btcVal { 
+      color: var(--neon-orange); 
+      text-shadow: 0 0 15px var(--neon-orange-glow);
+    }
+    .eurVal { 
+      color: var(--neon-cyan); 
+      text-shadow: 0 0 15px var(--neon-cyan-glow);
+    }
+    .satsVal { 
+      color: var(--text); 
+    }
 
     .miniBadges {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid var(--glass-border);
+      border-top: 1px solid var(--border);
     }
 
-    .miniBadges .pill::before { display: none; }
-    .pill.btc { color: var(--btc-soft); border-color: rgba(247,147,26,0.2); }
-    .pill.eur { color: #60a5fa; border-color: rgba(59,130,246,0.2); }
-    .pill.purple { color: var(--price); border-color: rgba(167,139,250,0.2); }
-
-    .tiny {
+    .badge {
+      font-family: var(--font-mono);
       font-size: 11px;
-      color: var(--text-muted);
-      margin-top: 12px;
-      line-height: 1.5;
+      padding: 6px 12px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      letter-spacing: 0.05em;
+    }
+
+    .badge.orange {
+      border-color: rgba(255, 107, 0, 0.3);
+      color: var(--neon-orange);
     }
 
     /* Chart Cards */
-    .chartCard {
-      padding: 20px;
-    }
-
     .title {
       display: flex;
       align-items: flex-start;
@@ -420,13 +439,27 @@
 
     .title strong {
       font-family: var(--font-display);
-      font-size: 18px;
-      font-weight: 400;
-      letter-spacing: -0.01em;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
     }
 
-    .title .tiny {
+    .title .desc {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
       margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .chartMeta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 5px 10px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
     }
 
     .chartBox {
@@ -443,22 +476,37 @@
     .txList {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       margin-top: 16px;
     }
 
     .txItem {
-      background: rgba(0,0,0,0.2);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-md);
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
       padding: 14px 16px;
-      transition: all 0.2s var(--ease-out);
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .txItem::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--text-dim);
+      transition: all 0.2s ease;
     }
 
     .txItem:hover {
-      background: rgba(0,0,0,0.3);
-      border-color: rgba(255,255,255,0.1);
-      transform: translateX(4px);
+      border-color: var(--border-bright);
+      background: rgba(255, 107, 0, 0.05);
+    }
+
+    .txItem:hover::before {
+      background: var(--neon-orange);
+      box-shadow: 0 0 10px var(--neon-orange-glow);
     }
 
     .txTop {
@@ -469,17 +517,19 @@
     }
 
     .txTime {
+      font-family: var(--font-mono);
       font-size: 12px;
-      color: var(--text-secondary);
+      color: var(--text-dim);
     }
 
     .txId {
       font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--text-muted);
+      font-size: 10px;
+      color: var(--neon-cyan);
       padding: 3px 8px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 6px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      text-shadow: 0 0 5px var(--neon-cyan-glow);
     }
 
     .txBottom {
@@ -490,73 +540,98 @@
 
     .txDelta {
       font-family: var(--font-mono);
-      font-size: 15px;
-      font-weight: 600;
+      font-size: 16px;
+      font-weight: 400;
     }
 
-    .pos { color: var(--ok); }
-    .neg { color: var(--bad); }
+    .pos { 
+      color: var(--neon-green); 
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+    .neg { 
+      color: var(--neon-red); 
+      text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+    }
 
-    .txStatus .pill::before { display: none; }
+    .txStatus {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 4px 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .txStatus.confirmed {
+      color: var(--neon-green);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    .txStatus.pending {
+      color: var(--neon-orange);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      background: rgba(255, 107, 0, 0.1);
+      animation: pendingPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pendingPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
 
     /* Error Box */
     .error {
       display: none;
       margin-top: 16px;
-      padding: 12px 16px;
-      background: rgba(248,113,113,0.1);
-      border: 1px solid rgba(248,113,113,0.2);
-      border-radius: var(--radius-sm);
-      color: var(--bad);
+      padding: 14px 18px;
+      background: rgba(255, 51, 102, 0.1);
+      border: 1px solid rgba(255, 51, 102, 0.3);
+      color: var(--neon-red);
+      font-family: var(--font-mono);
       font-size: 13px;
     }
 
     /* Responsive */
     @media (max-width: 400px) {
-      h1 { font-size: 24px; }
+      h1 { font-size: 20px; letter-spacing: 0.05em; }
       .walletName { font-size: 26px; }
       .heroVal { font-size: 18px; }
-      .heroRow { padding: 14px; }
+      .heroRow { padding: 14px 16px; }
     }
 
-    /* Loading shimmer */
-    @keyframes shimmer {
-      0% { background-position: -200% 0; }
-      100% { background-position: 200% 0; }
+    /* Glitch effect for title on hover */
+    h1:hover {
+      animation: glitch 0.3s ease;
     }
 
-    .loading {
-      background: linear-gradient(90deg, 
-        rgba(255,255,255,0.03) 25%, 
-        rgba(255,255,255,0.08) 50%, 
-        rgba(255,255,255,0.03) 75%
-      );
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(-1px, 1px); }
+      80% { transform: translate(1px, -1px); }
+      100% { transform: translate(0); }
     }
   </style>
 </head>
 
 <body>
+  <div class="scanlines"></div>
+  
   <div class="wrap">
 
     <div class="topbar">
       <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z"/></svg>
-        </div>
+        <div class="brand-icon"></div>
         <div>
           <h1 id="walletTitle">Bitcoin</h1>
-          <p class="sub" id="walletSub">Wallet</p>
+          <p class="sub" id="walletSub">// Digital Asset</p>
         </div>
       </div>
 
       <div class="actions">
-        <div class="btnRow">
-          <a class="btn btnIcon" id="explorerBtn" target="_blank" rel="noopener" title="Explorer">↗</a>
-          <button class="btn btnIcon" id="refreshBtn" title="Aktualisieren">↻</button>
-        </div>
-
+        <a class="btn" id="explorerBtn" target="_blank" rel="noopener" title="Explorer">↗</a>
+        <button class="btn" id="refreshBtn" title="Aktualisieren">⟳</button>
       </div>
     </div>
 
@@ -566,10 +641,10 @@
     </div>
 
     <div class="stack">
-      <div class="card heroCard">
+      <div class="card">
         <div class="heroHeader">
-          <div class="heroTitle"><span class="heroDot"></span>Aktueller Stand</div>
-          <span class="pill btc" id="todayPill">–</span>
+          <div class="heroTitle"><span class="heroDot"></span>Live Status</div>
+          <span class="datePill" id="todayPill">–</span>
         </div>
 
         <div class="heroGrid">
@@ -578,7 +653,7 @@
             <div class="heroVal btcVal" id="heroBtc">–</div>
           </div>
           <div class="heroRow sats-row">
-            <div class="heroKey">Sats</div>
+            <div class="heroKey">SATS</div>
             <div class="heroVal satsVal" id="heroSats">–</div>
           </div>
           <div class="heroRow eur-row">
@@ -588,43 +663,42 @@
         </div>
 
         <div class="miniBadges">
-          <span class="pill btc" id="pendingPill">Offen: –</span>
-          <span class="pill" id="txCountPill">Bewegungen: –</span>
+          <span class="badge orange" id="pendingPill">Pending: –</span>
+          <span class="badge" id="txCountPill">TX Count: –</span>
         </div>
-
 
         <div class="error" id="errBox"></div>
       </div>
 
-      <div class="card chartCard">
+      <div class="card">
         <div class="title">
           <div>
-            <strong style="color:var(--btc-soft);">Bestand</strong>
-            <div class="tiny">BTC-Balance über Zeit</div>
+            <strong style="color:var(--neon-orange);">Balance</strong>
+            <div class="desc">// BTC holdings over time</div>
           </div>
-          <span class="pill btc" id="chartMeta">–</span>
+          <span class="chartMeta" id="chartMeta">–</span>
         </div>
         <div class="chartBox"><canvas id="balanceChart"></canvas></div>
       </div>
 
-      <div class="card chartCard">
+      <div class="card">
         <div class="title">
           <div>
-            <strong style="color:#60a5fa;">Wert</strong>
-            <div class="tiny">EUR-Gegenwert pro Tag</div>
+            <strong style="color:var(--neon-cyan);">Value</strong>
+            <div class="desc">// EUR equivalent</div>
           </div>
-          <span class="pill eur" id="eurMeta">–</span>
+          <span class="chartMeta" id="eurMeta">–</span>
         </div>
         <div class="chartBoxSmall"><canvas id="eurChart"></canvas></div>
       </div>
 
-      <div class="card chartCard">
+      <div class="card">
         <div class="title">
           <div>
-            <strong style="color:var(--price);">BTC-Preis</strong>
-            <div class="tiny">Tageswerte in EUR</div>
+            <strong style="color:var(--neon-purple);">Price</strong>
+            <div class="desc">// BTC/EUR rate</div>
           </div>
-          <span class="pill purple" id="priceMeta">–</span>
+          <span class="chartMeta" id="priceMeta">–</span>
         </div>
         <div class="chartBoxSmall"><canvas id="priceChart"></canvas></div>
       </div>
@@ -632,10 +706,10 @@
       <div class="card">
         <div class="title">
           <div>
-            <strong>Transaktionen</strong>
-            <div class="tiny">Letzte Bewegungen</div>
+            <strong>Transactions</strong>
+            <div class="desc">// Recent activity</div>
           </div>
-          <span class="pill" id="txMeta">–</span>
+          <span class="chartMeta" id="txMeta">–</span>
         </div>
 
         <div class="txList" id="txList"></div>
@@ -665,12 +739,14 @@
 
     if(!WALLET_NAME){
       document.body.innerHTML = `
-        <div style="max-width:520px;margin:80px auto;padding:24px;color:white;
-                    font-family:'DM Sans',system-ui,sans-serif;text-align:center;">
-          <div style="font-size:48px;margin-bottom:16px;opacity:0.3;">₿</div>
-          <h2 style="margin:0 0 12px 0;font-weight:500;">Adresse nicht erlaubt</h2>
-          <p style="opacity:.6;margin:0;font-size:14px;">
-            Bitte einen gültigen Link mit <code style="background:rgba(255,255,255,0.1);padding:2px 6px;border-radius:4px;">?addr=...</code> verwenden.
+        <div class="scanlines"></div>
+        <div style="max-width:520px;margin:80px auto;padding:24px;color:#e0e0e0;
+                    font-family:'Rajdhani',sans-serif;text-align:center;">
+          <div style="font-family:'Orbitron',monospace;font-size:48px;margin-bottom:16px;color:#ff6b00;text-shadow:0 0 30px rgba(255,107,0,0.5);">₿</div>
+          <h2 style="margin:0 0 12px 0;font-family:'Orbitron',monospace;font-weight:600;letter-spacing:0.1em;">ACCESS DENIED</h2>
+          <p style="opacity:.6;margin:0;font-size:14px;font-family:'Share Tech Mono',monospace;">
+            // Invalid wallet address<br>
+            // Use <code style="background:rgba(255,107,0,0.2);padding:2px 8px;color:#ff6b00;">?addr=...</code> parameter
           </p>
         </div>`;
       throw new Error("Address not in allowlist");
@@ -680,13 +756,11 @@
     const COINGECKO = "https://api.coingecko.com/api/v3";
 
     const COLORS = {
-      btc:   "#f7931a",
-      btc2:  "#fbbf24",
-      eur:   "#3b82f6",
-      eur2:  "#60a5fa",
-      price: "#a78bfa",
-      grid:  "rgba(255,255,255,0.04)",
-      ticks: "rgba(255,255,255,0.5)"
+      btc:   "#ff6b00",
+      eur:   "#00f0ff",
+      price: "#bf00ff",
+      grid:  "rgba(255, 107, 0, 0.08)",
+      ticks: "rgba(255, 255, 255, 0.4)"
     };
 
     const el = (id) => document.getElementById(id);
@@ -735,19 +809,14 @@
       return r.json();
     }
 
-    function setStatusLoading(){
-      // Status elements removed
-    }
-    function setStatusOk(){
-      // Status elements removed
-    }
-    function setStatusError(){
-      // Status elements removed
-    }
+    function setStatusLoading(){}
+    function setStatusOk(){}
+    function setStatusError(){}
+    
     function showError(msg){
       const box = el("errBox");
       box.style.display = "block";
-      box.textContent = msg;
+      box.textContent = "// ERROR: " + msg;
       setStatusError();
     }
     function clearError(){
@@ -786,8 +855,8 @@
 
     function makeStepLine(ctx, labels, data, label, changeIdxSet, colorHex){
       const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
-      gradient.addColorStop(0, colorHex + "40");
-      gradient.addColorStop(1, colorHex + "00");
+      gradient.addColorStop(0, colorHex + "30");
+      gradient.addColorStop(1, colorHex + "05");
 
       return new Chart(ctx, {
         type:"line",
@@ -806,7 +875,7 @@
             pointHoverRadius: 6,
             pointHitRadius: 14,
             pointBackgroundColor: colorHex,
-            pointBorderColor: "rgba(255,255,255,0.9)",
+            pointBorderColor: "#0a0a0f",
             pointBorderWidth: 2
           }]
         },
@@ -818,12 +887,12 @@
             tooltip:{
               mode:"index",
               intersect:false,
-              backgroundColor: "rgba(0,0,0,0.8)",
-              titleFont: { family: "'DM Sans', sans-serif", size: 12 },
-              bodyFont: { family: "'JetBrains Mono', monospace", size: 13 },
+              backgroundColor: "rgba(10, 10, 15, 0.95)",
+              titleFont: { family: "'Rajdhani', sans-serif", size: 12 },
+              bodyFont: { family: "'Share Tech Mono', monospace", size: 13 },
               padding: 12,
-              cornerRadius: 8,
-              borderColor: "rgba(255,255,255,0.1)",
+              cornerRadius: 4,
+              borderColor: colorHex,
               borderWidth: 1
             }
           },
@@ -833,14 +902,14 @@
               ticks:{
                 maxTicksLimit: 5,
                 color: COLORS.ticks,
-                font: { family: "'DM Sans', sans-serif", size: 11 }
+                font: { family: "'Share Tech Mono', monospace", size: 10 }
               },
               grid:{ color: COLORS.grid, drawBorder: false }
             },
             y:{
               ticks:{
                 color: COLORS.ticks,
-                font: { family: "'JetBrains Mono', monospace", size: 11 }
+                font: { family: "'Share Tech Mono', monospace", size: 10 }
               },
               grid:{ color: COLORS.grid, drawBorder: false }
             }
@@ -885,10 +954,8 @@
         deltaEl.textContent = `${sign}${fmtBtcCompact(Math.abs(deltaBtc))} BTC`;
 
         const statusEl = document.createElement("div");
-        statusEl.className = "txStatus";
-        statusEl.innerHTML = isConfirmed
-          ? `<span class="pill" style="color:var(--ok);border-color:rgba(52,211,153,0.2);">Bestätigt</span>`
-          : `<span class="pill" style="color:var(--warn);border-color:rgba(251,191,36,0.2);">Offen</span>`;
+        statusEl.className = "txStatus " + (isConfirmed ? "confirmed" : "pending");
+        statusEl.textContent = isConfirmed ? "Confirmed" : "Pending";
 
         bottom.appendChild(deltaEl);
         bottom.appendChild(statusEl);
@@ -975,16 +1042,15 @@
       clearError();
 
       el("walletTitle").textContent = "Bitcoin";
-      el("walletSub").textContent = "Wallet";
+      el("walletSub").textContent = "// Digital Asset";
 
-      document.title = `${WALLET_NAME} · Bitcoin`;
+      document.title = `${WALLET_NAME} // BTC`;
 
       el("walletName").textContent = WALLET_NAME;
       el("walletAddr").textContent = ADDRESS;
 
       el("explorerBtn").href = `https://mempool.space/address/${ADDRESS}`;
       
-      // Set current date in todayPill
       el("todayPill").textContent = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 
       setStatusLoading();
@@ -1000,11 +1066,11 @@
 
         el("heroBtc").textContent = `${fmtBtcCompact(confirmedBtc)}`;
         el("heroSats").textContent = `${fmtSats(confirmedSats)}`;
-        el("pendingPill").textContent = `Offen: ${fmtBtcCompact(pendingBtc)} BTC`;
-        el("txCountPill").textContent = `Bewegungen: ${new Intl.NumberFormat("de-DE").format(txCount)}`;
+        el("pendingPill").textContent = `Pending: ${fmtBtcCompact(pendingBtc)} BTC`;
+        el("txCountPill").textContent = `TX Count: ${new Intl.NumberFormat("de-DE").format(txCount)}`;
 
         const recent = await fetchJson(`${MEMPOOL}/address/${ADDRESS}/txs`);
-        el("txMeta").textContent = `${Math.min(recent.length, 25)} geladen`;
+        el("txMeta").textContent = `${Math.min(recent.length, 25)} loaded`;
         renderTxList(recent);
 
         const confirmedAll = await fetchAllConfirmedTxs();
@@ -1016,7 +1082,7 @@
         const { startDay, todayDay, labels, balancesBtc, changeIdxSet } =
           buildDailyStepSeriesFromTxs(confirmedAsc);
 
-        el("chartMeta").textContent = `${labels.length} Tage`;
+        el("chartMeta").textContent = `${labels.length} days`;
 
         const priceMap = await fetchBtcEurPriceMap(startDay, todayDay + 86399);
 
@@ -1040,34 +1106,34 @@
 
         el("heroEur").textContent = lastPrice ? fmtEurNumberOnly(confirmedBtc * lastPrice) : "—";
 
-        el("eurMeta").textContent = `${labels.length} Tage`;
-        el("priceMeta").textContent = `${labels.length} Tage`;
+        el("eurMeta").textContent = `${labels.length} days`;
+        el("priceMeta").textContent = `${labels.length} days`;
 
         balanceChart = makeStepLine(
           el("balanceChart").getContext("2d"),
           labels, balancesBtc,
-          "Bestand (BTC)",
+          "Balance (BTC)",
           changeIdxSet, COLORS.btc
         );
 
         eurChart = makeStepLine(
           el("eurChart").getContext("2d"),
           labels, eurValues,
-          "Wert (EUR)",
+          "Value (EUR)",
           changeIdxSet, COLORS.eur
         );
 
         priceChart = makeStepLine(
           el("priceChart").getContext("2d"),
           labels, prices,
-          "BTC-Preis (EUR)",
+          "BTC Price (EUR)",
           changeIdxSet, COLORS.price
         );
 
         setStatusOk();
 
       }catch(e){
-        showError("Konnte Daten nicht laden: " + (e?.message || e));
+        showError(e?.message || e);
       }
     }
 
