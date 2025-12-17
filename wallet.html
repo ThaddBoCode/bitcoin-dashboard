@@ -1,0 +1,1246 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="apple-touch-icon" href="icon-180.png">
+  <meta name="apple-mobile-web-app-title" content="Bitcoin">
+  <title>Bitcoin</title>
+
+  <!-- Digital Mono Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: rgba(15, 15, 25, 0.85);
+      --bg-inner: rgba(0, 0, 0, 0.4);
+
+      --text: #e0e0e0;
+      --text-dim: rgba(255, 255, 255, 0.5);
+      --text-bright: #ffffff;
+
+      --neon-orange: #ff6b00;
+      --neon-orange-glow: rgba(255, 107, 0, 0.6);
+      --neon-cyan: #00f0ff;
+      --neon-cyan-glow: rgba(0, 240, 255, 0.5);
+      --neon-purple: #bf00ff;
+      --neon-purple-glow: rgba(191, 0, 255, 0.5);
+      --neon-green: #00ff88;
+      --neon-red: #ff3366;
+
+      --border: rgba(255, 107, 0, 0.2);
+      --border-bright: rgba(255, 107, 0, 0.5);
+
+      --font-display: 'Orbitron', monospace;
+      --font-body: 'Rajdhani', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body);
+      font-weight: 500;
+      color: var(--text);
+      background: var(--bg);
+      min-height: 100vh;
+      line-height: 1.4;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Cyber grid background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 107, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 107, 0, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    /* Ambient glow */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, rgba(255, 107, 0, 0.12), transparent 50%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(0, 240, 255, 0.08), transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Scanline effect */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.1) 2px,
+        rgba(0, 0, 0, 0.1) 4px
+      );
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
+    }
+
+    .wrap {
+      max-width: 540px;
+      margin: 0 auto;
+      padding: max(20px, env(safe-area-inset-top)) 16px 40px;
+      position: relative;
+    }
+
+    /* Header */
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, var(--neon-orange) 0%, #cc5500 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 
+        0 0 20px var(--neon-orange-glow),
+        0 0 40px rgba(255, 107, 0, 0.3),
+        inset 0 0 20px rgba(255, 255, 255, 0.1);
+      animation: iconPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes iconPulse {
+      0%, 100% { box-shadow: 0 0 20px var(--neon-orange-glow), 0 0 40px rgba(255, 107, 0, 0.3); }
+      50% { box-shadow: 0 0 30px var(--neon-orange-glow), 0 0 60px rgba(255, 107, 0, 0.4); }
+    }
+
+    .brand-icon::before {
+      content: "₿";
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 700;
+      color: white;
+      text-shadow: 0 0 10px rgba(255,255,255,0.5);
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-bright);
+      text-shadow: 0 0 20px var(--neon-orange-glow);
+    }
+
+    .sub {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    button, a.btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--bg-inner);
+      color: var(--neon-orange);
+      padding: 12px 14px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before, a.btn::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 40%, rgba(255, 107, 0, 0.1) 100%);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    button:hover, a.btn:hover {
+      border-color: var(--neon-orange);
+      box-shadow: 0 0 15px var(--neon-orange-glow), inset 0 0 15px rgba(255, 107, 0, 0.1);
+      text-shadow: 0 0 10px var(--neon-orange-glow);
+    }
+
+    button:hover::before, a.btn:hover::before {
+      opacity: 1;
+    }
+
+    /* Wallet Identity Card */
+    .walletCard {
+      position: relative;
+      padding: 16px 20px;
+      border-radius: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .walletCard::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon-orange), transparent);
+      animation: scanLine 3s linear infinite;
+    }
+
+    @keyframes scanLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .walletCard::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--neon-orange);
+      box-shadow: 0 0 15px var(--neon-orange-glow);
+    }
+
+    .walletName {
+      font-family: var(--font-display);
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: var(--text-bright);
+      text-shadow: 0 0 30px var(--neon-orange-glow);
+      margin-bottom: 6px;
+    }
+
+    .walletAddr {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--neon-cyan);
+      word-break: break-all;
+      line-height: 1.5;
+      text-shadow: 0 0 10px var(--neon-cyan-glow);
+      opacity: 0.8;
+    }
+
+    /* Card Stack */
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      position: relative;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    /* Corner accents */
+    .card::before,
+    .card::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-style: solid;
+      border-color: var(--neon-orange);
+      opacity: 0.5;
+    }
+
+    .card::before {
+      top: 0;
+      left: 0;
+      border-width: 2px 0 0 2px;
+    }
+
+    .card::after {
+      bottom: 0;
+      right: 0;
+      border-width: 0 2px 2px 0;
+    }
+
+    /* Hero Stats Card */
+    .heroHeader {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .heroTitle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+    }
+
+    .heroDot {
+      width: 10px;
+      height: 10px;
+      background: var(--neon-orange);
+      box-shadow: 0 0 10px var(--neon-orange-glow), 0 0 20px var(--neon-orange-glow);
+      animation: blink 1.5s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .datePill {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--neon-cyan);
+      padding: 6px 12px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      text-shadow: 0 0 10px var(--neon-cyan-glow);
+    }
+
+    .heroGrid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .heroRow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .heroRow::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+    }
+
+    .heroRow.btc-row::before { background: var(--neon-orange); box-shadow: 0 0 10px var(--neon-orange-glow); }
+    .heroRow.eur-row::before { background: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan-glow); }
+
+    .heroKey {
+      font-family: var(--font-display);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      color: var(--text-dim);
+    }
+
+    .heroVal {
+      font-family: var(--font-mono);
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+    }
+
+    .btcVal { 
+      color: var(--neon-orange); 
+      text-shadow: 0 0 15px var(--neon-orange-glow);
+    }
+    .eurVal { 
+      color: var(--neon-cyan); 
+      text-shadow: 0 0 15px var(--neon-cyan-glow);
+    }
+
+    /* Chart Cards */
+    .title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .title strong {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .title .desc {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .chartMeta {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      padding: 5px 10px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+    }
+
+    .chartBox {
+      height: 200px;
+      margin: 0 -8px;
+    }
+
+    .chartBoxSmall {
+      height: 160px;
+      margin: 0 -8px;
+    }
+
+    /* Transaction List */
+    .txList {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .txItem {
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .txItem::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--text-dim);
+      transition: all 0.2s ease;
+    }
+
+    .txItem:hover {
+      border-color: var(--border-bright);
+      background: rgba(255, 107, 0, 0.05);
+    }
+
+    .txItem:hover::before {
+      background: var(--neon-orange);
+      box-shadow: 0 0 10px var(--neon-orange-glow);
+    }
+
+    .txTop {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .txTime {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .txId {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--neon-cyan);
+      padding: 3px 8px;
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      text-shadow: 0 0 5px var(--neon-cyan-glow);
+    }
+
+    .txBottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .txDelta {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .pos { 
+      color: var(--neon-green); 
+      text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
+    .neg { 
+      color: var(--neon-red); 
+      text-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+    }
+
+    .txStatus {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 4px 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .txStatus.confirmed {
+      color: var(--neon-green);
+      border: 1px solid rgba(0, 255, 136, 0.3);
+      background: rgba(0, 255, 136, 0.1);
+    }
+
+    .txStatus.pending {
+      color: var(--neon-orange);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      background: rgba(255, 107, 0, 0.1);
+      animation: pendingPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pendingPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Error Box */
+    .error {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 18px;
+      background: rgba(255, 51, 102, 0.1);
+      border: 1px solid rgba(255, 51, 102, 0.3);
+      color: var(--neon-red);
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+
+    /* QR Code Card */
+    .qrCard {
+      text-align: center;
+    }
+
+    .qrContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .qrCode {
+      width: 180px;
+      height: 180px;
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
+    }
+
+    .qrCode img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .qrAddr {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      word-break: break-all;
+      max-width: 280px;
+      line-height: 1.6;
+      padding: 10px 14px;
+      background: var(--bg-inner);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    .copyBtn {
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      color: var(--neon-cyan);
+      padding: 10px 20px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .copyBtn:hover {
+      background: rgba(0, 240, 255, 0.2);
+      box-shadow: 0 0 15px var(--neon-cyan-glow);
+    }
+
+    .copyBtn.copied {
+      background: rgba(0, 255, 136, 0.1);
+      border-color: rgba(0, 255, 136, 0.3);
+      color: var(--neon-green);
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      h1 { font-size: 20px; letter-spacing: 0.05em; }
+      .walletName { font-size: 26px; }
+      .heroVal { font-size: 18px; }
+      .heroRow { padding: 8px 12px; }
+    }
+
+    /* Glitch effect for title on hover */
+    h1:hover {
+      animation: glitch 0.3s ease;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(2px, -2px); }
+      60% { transform: translate(-1px, 1px); }
+      80% { transform: translate(1px, -1px); }
+      100% { transform: translate(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="scanlines"></div>
+  
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-icon"></div>
+        <div>
+          <h1 id="walletTitle">Bitcoin</h1>
+          <p class="sub" id="walletSub">Digitale Währung</p>
+        </div>
+      </div>
+
+      <div class="actions">
+        <a class="btn" href="index.html" title="Zurück zur Übersicht">←</a>
+        <a class="btn" id="explorerBtn" target="_blank" rel="noopener" title="Explorer">↗</a>
+        <button class="btn" id="refreshBtn" title="Aktualisieren">⟳</button>
+      </div>
+    </div>
+
+    <div class="walletCard" id="walletCard">
+      <div class="walletName" id="walletName">—</div>
+      <div class="walletAddr" id="walletAddr">—</div>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="heroHeader">
+          <div class="heroTitle"><span class="heroDot"></span>Aktueller Stand</div>
+          <span class="datePill" id="todayPill">–</span>
+        </div>
+
+        <div class="heroGrid">
+          <div class="heroRow btc-row">
+            <div class="heroKey">BTC BESTAND</div>
+            <div class="heroVal btcVal" id="heroBtc">–</div>
+          </div>
+          <div class="heroRow eur-row">
+            <div class="heroKey">BTC BESTAND IN EUR</div>
+            <div class="heroVal eurVal" id="heroEur">–</div>
+          </div>
+        </div>
+
+        <div class="error" id="errBox"></div>
+      </div>
+
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong style="color:var(--neon-cyan);">BTC Bestand in EUR</strong>
+          </div>
+          <span class="chartMeta" id="eurMeta">–</span>
+        </div>
+        <div class="chartBox"><canvas id="eurChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong style="color:var(--neon-orange);">BTC Bestand</strong>
+          </div>
+          <span class="chartMeta" id="chartMeta">–</span>
+        </div>
+        <div class="chartBoxSmall"><canvas id="balanceChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong style="color:var(--neon-purple);">BTC Kurs</strong>
+          </div>
+          <span class="chartMeta" id="priceMeta">–</span>
+        </div>
+        <div class="chartBoxSmall"><canvas id="priceChart"></canvas></div>
+      </div>
+
+      <div class="card">
+        <div class="title">
+          <div>
+            <strong>Transaktionen</strong>
+          </div>
+          <span class="chartMeta" id="txMeta">–</span>
+        </div>
+
+        <div class="txList" id="txList"></div>
+      </div>
+
+      <div class="card qrCard">
+        <div class="title">
+          <div>
+            <strong>BTC Empfangen</strong>
+          </div>
+        </div>
+        <div class="qrContainer">
+          <div class="qrCode" id="qrCode"></div>
+          <div class="qrAddr" id="qrAddr">–</div>
+          <button class="copyBtn" id="copyBtn" title="Adresse kopieren">Adresse kopieren</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =====================================================
+    // WALLET KONFIGURATION - Hier Adressen hinzufügen
+    // =====================================================
+    // Unterstützt:
+    // - Einzelne Adressen: bc1q..., bc1p..., 1..., 3...
+    // - Extended Public Keys: xpub..., ypub..., zpub...
+    // =====================================================
+    const ADDRESS_BOOK = Object.freeze({
+      "bc1qpl73fwdsankdjz0tcetmndfdjgadr54tqxtya0": "Juna",
+      // "zpub6rFR7y4Q2AijF...": "Cold Wallet",
+      // "bc1qxy2kgdygjrsqt...": "Sparen",
+    });
+
+    function getParam(name){
+      const url = new URL(window.location.href);
+      return url.searchParams.get(name) || "";
+    }
+
+    function normalizeAddr(a){
+      return (a || "")
+        .trim()
+        .toLowerCase()
+        .replace(/^bitcoin:/, "");
+    }
+
+    const ADDRESS = normalizeAddr(getParam("addr"));
+    const WALLET_NAME = ADDRESS_BOOK[ADDRESS];
+
+    if(!WALLET_NAME){
+      document.body.innerHTML = `
+        <div class="scanlines"></div>
+        <div style="max-width:520px;margin:80px auto;padding:24px;color:#e0e0e0;
+                    font-family:'Rajdhani',sans-serif;text-align:center;">
+          <div style="font-family:'Orbitron',monospace;font-size:48px;margin-bottom:16px;color:#ff6b00;text-shadow:0 0 30px rgba(255,107,0,0.5);">₿</div>
+          <h2 style="margin:0 0 12px 0;font-family:'Orbitron',monospace;font-weight:600;letter-spacing:0.1em;">ZUGRIFF VERWEIGERT</h2>
+          <p style="opacity:.6;margin:0;font-size:14px;font-family:'Share Tech Mono',monospace;">
+            Ungültige Wallet-Adresse<br>
+            Verwende <code style="background:rgba(255,107,0,0.2);padding:2px 8px;color:#ff6b00;">?addr=...</code> Parameter
+          </p>
+        </div>`;
+      throw new Error("Address not in allowlist");
+    }
+
+    const MEMPOOL = "https://mempool.space/api";
+    const COINGECKO = "https://api.coingecko.com/api/v3";
+
+    // Erkennt ob es eine einzelne Adresse oder ein Extended Key ist
+    function isExtendedKey(addr) {
+      return addr.startsWith("xpub") || addr.startsWith("ypub") || addr.startsWith("zpub");
+    }
+
+    function getAddressApiUrl(addr) {
+      if (isExtendedKey(addr)) {
+        return `${MEMPOOL}/xpub/${addr}`;
+      }
+      return `${MEMPOOL}/address/${addr}`;
+    }
+
+    function getTxsApiUrl(addr, lastSeen = null) {
+      if (isExtendedKey(addr)) {
+        return lastSeen
+          ? `${MEMPOOL}/xpub/${addr}/txs/chain/${lastSeen}`
+          : `${MEMPOOL}/xpub/${addr}/txs/chain`;
+      }
+      return lastSeen
+        ? `${MEMPOOL}/address/${addr}/txs/chain/${lastSeen}`
+        : `${MEMPOOL}/address/${addr}/txs/chain`;
+    }
+
+    function getRecentTxsApiUrl(addr) {
+      if (isExtendedKey(addr)) {
+        return `${MEMPOOL}/xpub/${addr}/txs`;
+      }
+      return `${MEMPOOL}/address/${addr}/txs`;
+    }
+
+    const COLORS = {
+      btc:   "#ff6b00",
+      eur:   "#00f0ff",
+      price: "#bf00ff",
+      grid:  "rgba(255, 107, 0, 0.08)",
+      ticks: "rgba(255, 255, 255, 0.4)"
+    };
+
+    const el = (id) => document.getElementById(id);
+
+    function satsToBtcNum(sats){ return sats / 100_000_000; }
+    function fmtBtcCompact(btc){
+      const abs = Math.abs(btc);
+      const digits = abs >= 1 ? 6 : 8;
+      return btc.toFixed(digits).replace(/0+$/,'').replace(/\.$/,'');
+    }
+    function fmtEurNumberOnly(eur){
+      return new Intl.NumberFormat("de-DE", { maximumFractionDigits: 0 }).format(eur);
+    }
+
+    function fmtDate(ts){
+      if(!ts) return "—";
+      const d = new Date(ts * 1000);
+      return d.toLocaleString("de-DE", { dateStyle:"medium", timeStyle:"short" });
+    }
+    function dayKeyFromUnix(ts){
+      const d = new Date(ts * 1000);
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth()+1).padStart(2,"0");
+      const da = String(d.getUTCDate()).padStart(2,"0");
+      return `${y}-${m}-${da}`;
+    }
+    function dayKeyFromMs(ms){
+      const d = new Date(ms);
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth()+1).padStart(2,"0");
+      const da = String(d.getUTCDate()).padStart(2,"0");
+      return `${y}-${m}-${da}`;
+    }
+    function startOfDayUnix(ts){
+      const d = new Date(ts*1000);
+      d.setUTCHours(0,0,0,0);
+      return Math.floor(d.getTime()/1000);
+    }
+    function addDaysUnix(ts, days){ return ts + (days * 86400); }
+
+    async function fetchJson(url){
+      const r = await fetch(url, { cache:"no-store" });
+      if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    }
+
+    function setStatusLoading(){}
+    function setStatusOk(){}
+    function setStatusError(){}
+    
+    function showError(msg){
+      const box = el("errBox");
+      box.style.display = "block";
+      box.textContent = "FEHLER: " + msg;
+      setStatusError();
+    }
+    function clearError(){
+      const box = el("errBox");
+      box.style.display = "none";
+      box.textContent = "";
+    }
+
+    function computeDeltaSats(tx){
+      let inSats = 0, outSats = 0;
+      if(Array.isArray(tx.vin)){
+        for(const vin of tx.vin){
+          const prev = vin.prevout;
+          if(prev && prev.scriptpubkey_address === ADDRESS){
+            inSats += (prev.value || 0);
+          }
+        }
+      }
+      if(Array.isArray(tx.vout)){
+        for(const vout of tx.vout){
+          if(vout.scriptpubkey_address === ADDRESS){
+            outSats += (vout.value || 0);
+          }
+        }
+      }
+      return outSats - inSats;
+    }
+
+    let balanceChart, eurChart, priceChart;
+    function destroyCharts(){
+      if(balanceChart) balanceChart.destroy();
+      if(eurChart) eurChart.destroy();
+      if(priceChart) priceChart.destroy();
+      balanceChart = eurChart = priceChart = null;
+    }
+
+    function makeStepLine(ctx, labels, data, label, changeIdxSet, colorHex){
+      const gradient = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height);
+      gradient.addColorStop(0, colorHex + "30");
+      gradient.addColorStop(1, colorHex + "05");
+
+      return new Chart(ctx, {
+        type:"line",
+        data:{
+          labels,
+          datasets:[{
+            label,
+            data,
+            stepped:true,
+            tension:0,
+            borderWidth:2,
+            borderColor: colorHex,
+            backgroundColor: gradient,
+            fill: true,
+            pointRadius: (c) => changeIdxSet?.has(c.dataIndex) ? 4 : 0,
+            pointHoverRadius: 6,
+            pointHitRadius: 14,
+            pointBackgroundColor: colorHex,
+            pointBorderColor: "#0a0a0f",
+            pointBorderWidth: 2
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{
+            legend:{ display:false },
+            tooltip:{
+              mode:"index",
+              intersect:false,
+              backgroundColor: "rgba(10, 10, 15, 0.95)",
+              titleFont: { family: "'Rajdhani', sans-serif", size: 12 },
+              bodyFont: { family: "'Share Tech Mono', monospace", size: 13 },
+              padding: 12,
+              cornerRadius: 4,
+              borderColor: colorHex,
+              borderWidth: 1
+            }
+          },
+          interaction:{ mode:"index", intersect:false },
+          scales:{
+            x:{
+              ticks:{
+                maxTicksLimit: 5,
+                color: COLORS.ticks,
+                font: { family: "'Share Tech Mono', monospace", size: 10 }
+              },
+              grid:{ color: COLORS.grid, drawBorder: false }
+            },
+            y:{
+              ticks:{
+                color: COLORS.ticks,
+                font: { family: "'Share Tech Mono', monospace", size: 10 }
+              },
+              grid:{ color: COLORS.grid, drawBorder: false }
+            }
+          }
+        }
+      });
+    }
+
+    function renderTxList(txs){
+      const list = el("txList");
+      list.innerHTML = "";
+
+      for(const tx of txs.slice(0, 10)){
+        const delta = computeDeltaSats(tx);
+        const deltaBtc = satsToBtcNum(delta);
+        const isConfirmed = !!tx.status?.confirmed;
+        const time = isConfirmed ? tx.status.block_time : (tx.status?.block_time || null);
+
+        const item = document.createElement("div");
+        item.className = "txItem";
+
+        const top = document.createElement("div");
+        top.className = "txTop";
+
+        const timeEl = document.createElement("div");
+        timeEl.className = "txTime";
+        timeEl.textContent = fmtDate(time);
+
+        const idEl = document.createElement("div");
+        idEl.className = "txId";
+        idEl.textContent = tx.txid.slice(0, 8) + "…" + tx.txid.slice(-6);
+
+        top.appendChild(timeEl);
+        top.appendChild(idEl);
+
+        const bottom = document.createElement("div");
+        bottom.className = "txBottom";
+
+        const deltaEl = document.createElement("div");
+        deltaEl.className = "txDelta " + (deltaBtc >= 0 ? "pos" : "neg");
+        const sign = deltaBtc >= 0 ? "+" : "−";
+        deltaEl.textContent = `${sign}${fmtBtcCompact(Math.abs(deltaBtc))} BTC`;
+
+        const statusEl = document.createElement("div");
+        statusEl.className = "txStatus " + (isConfirmed ? "confirmed" : "pending");
+        statusEl.textContent = isConfirmed ? "Bestätigt" : "Offen";
+
+        bottom.appendChild(deltaEl);
+        bottom.appendChild(statusEl);
+
+        item.appendChild(top);
+        item.appendChild(bottom);
+
+        list.appendChild(item);
+      }
+    }
+
+    async function fetchAllConfirmedTxs(){
+      const all = [];
+      let lastSeen = null;
+      let page = 0;
+
+      while(true){
+        page++;
+        const url = getTxsApiUrl(ADDRESS, lastSeen);
+
+        const chunk = await fetchJson(url);
+        if(!Array.isArray(chunk) || chunk.length === 0) break;
+
+        all.push(...chunk);
+        lastSeen = chunk[chunk.length - 1].txid;
+
+        if(page > 500) break;
+      }
+      return all;
+    }
+
+    function buildDailyStepSeriesFromTxs(confirmedTxsAsc){
+      const deltasByDay = new Map();
+      let firstTs = null;
+
+      for(const tx of confirmedTxsAsc){
+        const ts = tx.status?.block_time;
+        if(!ts) continue;
+        if(firstTs == null || ts < firstTs) firstTs = ts;
+
+        const day = startOfDayUnix(ts);
+        const delta = computeDeltaSats(tx);
+        deltasByDay.set(day, (deltasByDay.get(day) || 0) + delta);
+      }
+
+      const todayDay = startOfDayUnix(Math.floor(Date.now()/1000));
+      const startDay = firstTs ? startOfDayUnix(firstTs) : todayDay;
+
+      const labels = [];
+      const balancesBtc = [];
+      let runningSats = 0;
+
+      for(let d = startDay; d <= todayDay; d = addDaysUnix(d, 1)){
+        runningSats += (deltasByDay.get(d) || 0);
+        const dateObj = new Date(d*1000);
+        labels.push(dateObj.toLocaleDateString("de-DE", { day:"2-digit", month:"short", timeZone: "UTC" }));
+        balancesBtc.push(satsToBtcNum(runningSats));
+      }
+
+      const changeIdxSet = new Set();
+      for(let i=0;i<labels.length;i++){
+        const dayUnix = startDay + i*86400;
+        if(deltasByDay.get(dayUnix)) changeIdxSet.add(i);
+      }
+
+      return { startDay, todayDay, labels, balancesBtc, changeIdxSet };
+    }
+
+    async function fetchBtcEurPriceMap(fromUnix, toUnix){
+      const url = `${COINGECKO}/coins/bitcoin/market_chart/range?vs_currency=eur&from=${fromUnix}&to=${toUnix}`;
+      const data = await fetchJson(url);
+
+      const priceMap = new Map();
+      for(const [ms, price] of (data.prices || [])){
+        priceMap.set(dayKeyFromMs(ms), price);
+      }
+      return priceMap;
+    }
+
+    // Setup QR code and copy functionality
+    function setupQRCode(){
+      const qrContainer = el("qrCode");
+      const bitcoinUri = `bitcoin:${ADDRESS}`;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(bitcoinUri)}&bgcolor=ffffff&color=000000`;
+      
+      const img = document.createElement("img");
+      img.src = qrUrl;
+      img.alt = "Bitcoin QR Code";
+      qrContainer.appendChild(img);
+
+      el("qrAddr").textContent = ADDRESS;
+
+      el("copyBtn").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(ADDRESS);
+          el("copyBtn").textContent = "Kopiert!";
+          el("copyBtn").classList.add("copied");
+          setTimeout(() => {
+            el("copyBtn").textContent = "Adresse kopieren";
+            el("copyBtn").classList.remove("copied");
+          }, 2000);
+        } catch(e) {
+          el("copyBtn").textContent = "Fehler";
+        }
+      });
+    }
+
+    async function load(){
+      destroyCharts();
+      clearError();
+
+      el("walletTitle").textContent = "Bitcoin";
+      el("walletSub").textContent = "Digitale Währung";
+
+      document.title = `${WALLET_NAME} // BTC`;
+
+      el("walletName").textContent = WALLET_NAME;
+      el("walletAddr").textContent = ADDRESS;
+
+      el("explorerBtn").href = isExtendedKey(ADDRESS) 
+        ? `https://mempool.space/xpub/${ADDRESS}`
+        : `https://mempool.space/address/${ADDRESS}`;
+      
+      el("todayPill").textContent = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
+
+      // Setup QR Code (only for single addresses, not for xpub/ypub/zpub)
+      if(!isExtendedKey(ADDRESS) && !el("qrCode").hasChildNodes()){
+        setupQRCode();
+      } else if(isExtendedKey(ADDRESS)) {
+        // Hide QR card for extended keys
+        const qrCard = document.querySelector(".qrCard");
+        if(qrCard) qrCard.style.display = "none";
+      }
+
+      setStatusLoading();
+
+      try{
+        const addr = await fetchJson(getAddressApiUrl(ADDRESS));
+        const confirmedSats = (addr.chain_stats.funded_txo_sum - addr.chain_stats.spent_txo_sum) || 0;
+
+        const confirmedBtc = satsToBtcNum(confirmedSats);
+
+        el("heroBtc").textContent = `${fmtBtcCompact(confirmedBtc)}`;
+
+        const recent = await fetchJson(getRecentTxsApiUrl(ADDRESS));
+        el("txMeta").textContent = `${Math.min(recent.length, 25)} geladen`;
+        renderTxList(recent);
+
+        const confirmedAll = await fetchAllConfirmedTxs();
+
+        const confirmedAsc = confirmedAll
+          .filter(t => t.status?.confirmed && t.status.block_time)
+          .sort((a,b) => a.status.block_time - b.status.block_time);
+
+        const { startDay, todayDay, labels, balancesBtc, changeIdxSet } =
+          buildDailyStepSeriesFromTxs(confirmedAsc);
+
+        el("chartMeta").textContent = `${labels.length} Tage`;
+
+        const priceMap = await fetchBtcEurPriceMap(startDay, todayDay + 86399);
+
+        const eurValues = [];
+        const prices = [];
+        let lastPrice = null;
+
+        for(let i=0;i<labels.length;i++){
+          const dayUnix = startDay + i*86400;
+          const key = dayKeyFromUnix(dayUnix);
+
+          let p = priceMap.get(key);
+          if(p == null) p = lastPrice;
+          if(p == null) p = 0;
+
+          lastPrice = p;
+
+          prices.push(p);
+          eurValues.push(balancesBtc[i] * p);
+        }
+
+        el("heroEur").textContent = lastPrice ? fmtEurNumberOnly(confirmedBtc * lastPrice) : "—";
+
+        el("eurMeta").textContent = `${labels.length} Tage`;
+        el("priceMeta").textContent = `${labels.length} Tage`;
+
+        balanceChart = makeStepLine(
+          el("balanceChart").getContext("2d"),
+          labels, balancesBtc,
+          "BTC Bestand",
+          changeIdxSet, COLORS.btc
+        );
+
+        eurChart = makeStepLine(
+          el("eurChart").getContext("2d"),
+          labels, eurValues,
+          "BTC Bestand in EUR",
+          changeIdxSet, COLORS.eur
+        );
+
+        priceChart = makeStepLine(
+          el("priceChart").getContext("2d"),
+          labels, prices,
+          "BTC Kurs",
+          changeIdxSet, COLORS.price
+        );
+
+        setStatusOk();
+
+      }catch(e){
+        showError(e?.message || e);
+      }
+    }
+
+    el("refreshBtn").addEventListener("click", load);
+    load();
+  </script>
+</body>
+</html>
