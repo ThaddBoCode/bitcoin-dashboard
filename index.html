@@ -684,15 +684,10 @@
       }
     });
 
-    // Check if already unlocked - skip PIN screen
-    if (isUnlocked()) {
-      document.getElementById("lockScreen").style.display = "none";
-      document.getElementById("mainContent").style.display = "";
-      load();
-    }
-
     // =====================================================
-
+    // API KONFIGURATION
+    // =====================================================
+    
     const MEMPOOL = "https://mempool.space/api";
     const COINGECKO = "https://api.coingecko.com/api/v3";
     
@@ -932,8 +927,15 @@
       }
     };
     
-    // load() wird nach erfolgreicher PIN-Eingabe aufgerufen
-    console.log("PIN-Eingabe erforderlich...");
+    // Check if already unlocked - skip PIN screen
+    if (isUnlocked()) {
+      console.log("Session bereits entsperrt - überspringe PIN");
+      document.getElementById("lockScreen").style.display = "none";
+      document.getElementById("mainContent").style.display = "";
+      load();
+    } else {
+      console.log("PIN-Eingabe erforderlich...");
+    }
   </script>
 </body>
 </html>
