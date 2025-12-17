@@ -751,23 +751,25 @@
     </div>
   </div>
 
+  <!-- Wallet-Konfiguration (externe Datei) -->
+  <script src="config.js"></script>
+  
   <script>
-    // =====================================================
-    // WALLET KONFIGURATION - Hier Adressen hinzufügen
-    // =====================================================
-    // Unterstützt:
-    // - Einzelne Adressen: bc1q..., bc1p..., 1..., 3...
-    // - Extended Public Keys: xpub..., ypub..., zpub...
-    // =====================================================
-    const ADDRESS_BOOK = Object.freeze({
-      "bc1qpl73fwdsankdjz0tcetmndfdjgadr54tqxtya0": "Juna",
-      "bc1qqt7d5zm9sejaak8j2x2jgcqrxjg2hzj5ydl00e": "Louisa",
-      "bc1q5g38zwqaw665epm8ftvddrumnetv0graxls5x5": "Fiona",
-      "bc1qzfq978e2rd78d4snyj8mzdtwlcplxzl677daz6": "Emile",
-      "bc1q9tsv5047vm40ht9a3prgk78x4x7z09f3pj3a6u": "Oscar",
-      // "zpub6rFR7y4Q2AijF...": "Cold Wallet",
-      // "bc1qxy2kgdygjrsqt...": "Sparen",
-    });
+    // Prüfen ob config.js geladen wurde
+    if (typeof ADDRESS_BOOK === 'undefined') {
+      document.body.innerHTML = `
+        <div class="scanlines"></div>
+        <div style="max-width:520px;margin:80px auto;padding:24px;color:#e0e0e0;
+                    font-family:'Rajdhani',sans-serif;text-align:center;">
+          <div style="font-size:48px;margin-bottom:16px;color:#ff3366;">⚠</div>
+          <h2 style="margin:0 0 12px 0;font-family:'Orbitron',monospace;font-weight:600;">FEHLER</h2>
+          <p style="opacity:.6;margin:0;font-size:14px;font-family:'Share Tech Mono',monospace;">
+            config.js konnte nicht geladen werden.<br>
+            Stelle sicher, dass die Datei im gleichen Ordner liegt.
+          </p>
+        </div>`;
+      throw new Error("config.js not loaded");
+    }
 
     function getParam(name){
       const url = new URL(window.location.href);
