@@ -398,12 +398,13 @@
     // =====================================================
     const ADDRESS_BOOK = {
       "bc1qpl73fwdsankdjz0tcetmndfdjgadr54tqxtya0": "Juna",
-      "zpub6rpqCS2kK2zWNgXxt7VaAGuaaRmErRyviAeDP3Qp3haNYdnrHyUKgbi6ieQcFssXf9dXkPQFgMCP4Wexz1Mk62irazSTp2Avdbm5eUXxpTp": "Louisa"
-      "zpub6rpqCS2kK2zWLmvcyi54ppmfYr2LJhkNYyrsa1aMLm1TPKdVgg4QRUfT9ikq5VezKYE1L8sXXKnZTjADyJLM3A21oViowQNaebnkXJEjkdY": "Thaddaeus",
       // "zpub6rFR7y4Q2AijF...": "Cold Wallet",
       // "bc1qxy2kgdygjrsqt...": "Sparen",
     };
     // =====================================================
+    
+    console.log("ADDRESS_BOOK geladen:", ADDRESS_BOOK);
+    console.log("Anzahl Wallets:", Object.keys(ADDRESS_BOOK).length);
 
     const MEMPOOL = "https://mempool.space/api";
     const COINGECKO = "https://api.coingecko.com/api/v3";
@@ -433,31 +434,51 @@
     }
 
     function truncateAddr(addr) {
-      if (addr.length > 20) {
-        return addr.slice(0, 10) + "..." + addr.slice(-8);
+      if (addr.length > 24) {
+        return addr.slice(0, 12) + "..." + addr.slice(-8);
       }
       return addr;
     }
 
     async function fetchJson(url) {
+      console.log("Fetching:", url);
       const r = await fetch(url, { cache: "no-store" });
-      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      return r.json();
+      if (!r.ok) {
+        console.error("API Error:", r.status, r.statusText, url);
+        throw new Error(`${r.status} ${r.statusText}`);
+      }
+      const data = await r.json();
+      console.log("Response:", data);
+      return data;
     }
 
     async function getBtcPrice() {
-      const data = await fetchJson(`${COINGECKO}/simple/price?ids=bitcoin&vs_currencies=eur`);
-      return data.bitcoin.eur;
+      try {
+        const data = await fetchJson(`${COINGECKO}/simple/price?ids=bitcoin&vs_currencies=eur`);
+        return data.bitcoin.eur;
+      } catch(e) {
+        console.error("Preis-Fehler:", e);
+        return 0;
+      }
     }
 
     async function getWalletBalance(addr) {
       const data = await fetchJson(getApiUrl(addr));
-      const funded = data.chain_stats.funded_txo_sum || 0;
-      const spent = data.chain_stats.spent_txo_sum || 0;
+      
+      // xpub/ypub/zpub haben eine andere Struktur
+      if (isExtendedKey(addr)) {
+        // Bei xpub ist es direkt funded_txo_sum und spent_txo_sum
+        const funded = data.chain_stats?.funded_txo_sum || 0;
+        const spent = data.chain_stats?.spent_txo_sum || 0;
+        return funded - spent;
+      }
+      
+      const funded = data.chain_stats?.funded_txo_sum || 0;
+      const spent = data.chain_stats?.spent_txo_sum || 0;
       return funded - spent;
     }
 
-    function createWalletItem(addr, name) {
+    function createWalletItem(addr, name, index) {
       const item = document.createElement("a");
       item.className = "walletItem";
       item.href = `wallet.html?addr=${encodeURIComponent(addr)}`;
@@ -468,11 +489,11 @@
         <div class="walletStats">
           <div class="walletStat">
             <div class="statLabel">BTC</div>
-            <div class="statValue btc loading" id="btc-${addr}">...</div>
+            <div class="statValue btc loading" id="btc-${index}">...</div>
           </div>
           <div class="walletStat">
             <div class="statLabel">EUR</div>
-            <div class="statValue eur loading" id="eur-${addr}">...</div>
+            <div class="statValue eur loading" id="eur-${index}">...</div>
           </div>
         </div>
       `;
@@ -484,81 +505,118 @@
       const list = document.getElementById("walletList");
       const errBox = document.getElementById("errBox");
       
+      // Sofort Zeit setzen
+      document.getElementById("updateTime").textContent = "Lädt...";
+      
       list.innerHTML = "";
       errBox.style.display = "none";
 
-      const entries = Object.entries(ADDRESS_BOOK);
-
-      if (entries.length === 0) {
-        errBox.textContent = "Keine Wallets konfiguriert. Bitte ADDRESS_BOOK bearbeiten.";
-        errBox.style.display = "block";
-        return;
-      }
-
-      // Wallet-Items erstellen
-      for (const [addr, name] of entries) {
-        const item = createWalletItem(addr, name);
-        list.appendChild(item);
-      }
-
-      // Preis laden
-      let btcPrice = 0;
       try {
-        btcPrice = await getBtcPrice();
-      } catch (e) {
-        console.error("Preis konnte nicht geladen werden:", e);
-      }
+        const entries = Object.entries(ADDRESS_BOOK);
 
-      // Balancen laden
-      let totalSats = 0;
+        if (entries.length === 0) {
+          errBox.textContent = "Keine Wallets konfiguriert. Bitte ADDRESS_BOOK bearbeiten.";
+          errBox.style.display = "block";
+          document.getElementById("updateTime").textContent = "Fehler";
+          return;
+        }
 
-      for (const [addr, name] of entries) {
+        // Wallet-Items erstellen (mit Index)
+        entries.forEach(([addr, name], index) => {
+          const item = createWalletItem(addr, name, index);
+          list.appendChild(item);
+        });
+
+        // Preis laden
+        let btcPrice = 0;
         try {
-          const sats = await getWalletBalance(addr);
-          const btc = satsToBtc(sats);
-          const eur = btc * btcPrice;
-
-          totalSats += sats;
-
-          const btcEl = document.getElementById(`btc-${addr}`);
-          const eurEl = document.getElementById(`eur-${addr}`);
-
-          if (btcEl) {
-            btcEl.textContent = fmtBtc(btc);
-            btcEl.classList.remove("loading");
-          }
-          if (eurEl) {
-            eurEl.textContent = btcPrice ? fmtEur(eur) : "–";
-            eurEl.classList.remove("loading");
-          }
+          btcPrice = await getBtcPrice();
+          console.log("BTC Preis:", btcPrice);
         } catch (e) {
-          console.error(`Fehler bei ${name}:`, e);
-          const btcEl = document.getElementById(`btc-${addr}`);
-          const eurEl = document.getElementById(`eur-${addr}`);
-          if (btcEl) {
-            btcEl.textContent = "Fehler";
-            btcEl.classList.remove("loading");
-          }
-          if (eurEl) {
-            eurEl.textContent = "–";
-            eurEl.classList.remove("loading");
+          console.error("Preis konnte nicht geladen werden:", e);
+        }
+
+        // Balancen laden
+        let totalSats = 0;
+        let hasError = false;
+
+        for (let i = 0; i < entries.length; i++) {
+          const [addr, name] = entries[i];
+          const btcEl = document.getElementById(`btc-${i}`);
+          const eurEl = document.getElementById(`eur-${i}`);
+          
+          try {
+            console.log(`Lade Balance für ${name}...`);
+            const sats = await getWalletBalance(addr);
+            console.log(`${name}: ${sats} sats`);
+            
+            const btc = satsToBtc(sats);
+            const eur = btc * btcPrice;
+
+            totalSats += sats;
+
+            if (btcEl) {
+              btcEl.textContent = fmtBtc(btc);
+              btcEl.classList.remove("loading");
+            }
+            if (eurEl) {
+              eurEl.textContent = btcPrice ? fmtEur(eur) : "–";
+              eurEl.classList.remove("loading");
+            }
+          } catch (e) {
+            console.error(`Fehler bei ${name}:`, e);
+            hasError = true;
+            if (btcEl) {
+              btcEl.textContent = "Fehler";
+              btcEl.classList.remove("loading");
+              btcEl.style.color = "#ff3366";
+            }
+            if (eurEl) {
+              eurEl.textContent = "–";
+              eurEl.classList.remove("loading");
+            }
           }
         }
+
+        // Gesamtsumme
+        const totalBtc = satsToBtc(totalSats);
+        const totalEur = totalBtc * btcPrice;
+
+        document.getElementById("totalBtc").textContent = fmtBtc(totalBtc);
+        document.getElementById("totalEur").textContent = btcPrice ? fmtEur(totalEur) : "–";
+
+        // Update-Zeit
+        document.getElementById("updateTime").textContent = 
+          new Date().toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
+        
+        if (hasError) {
+          errBox.textContent = "Einige Wallets konnten nicht geladen werden. Öffne die Browser-Konsole (F12) für Details.";
+          errBox.style.display = "block";
+        }
+      } catch (e) {
+        console.error("Globaler Fehler:", e);
+        errBox.textContent = "Fehler: " + e.message;
+        errBox.style.display = "block";
+        document.getElementById("updateTime").textContent = "Fehler";
       }
-
-      // Gesamtsumme
-      const totalBtc = satsToBtc(totalSats);
-      const totalEur = totalBtc * btcPrice;
-
-      document.getElementById("totalBtc").textContent = fmtBtc(totalBtc);
-      document.getElementById("totalEur").textContent = btcPrice ? fmtEur(totalEur) : "–";
-
-      // Update-Zeit
-      document.getElementById("updateTime").textContent = 
-        new Date().toLocaleString("de-DE", { dateStyle: "short", timeStyle: "short" });
     }
 
-    load();
+    // Start loading
+    window.onerror = function(msg, url, line) {
+      console.error("JavaScript Fehler:", msg, "Zeile:", line);
+      document.getElementById("errBox").textContent = "JS Fehler: " + msg;
+      document.getElementById("errBox").style.display = "block";
+      document.getElementById("updateTime").textContent = "Fehler";
+    };
+    
+    console.log("Starte load()...");
+    load().then(() => {
+      console.log("load() fertig");
+    }).catch(e => {
+      console.error("load() Fehler:", e);
+      document.getElementById("errBox").textContent = "Fehler: " + e.message;
+      document.getElementById("errBox").style.display = "block";
+    });
   </script>
 </body>
 </html>
