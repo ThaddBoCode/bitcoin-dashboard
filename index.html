@@ -592,7 +592,17 @@
     // PIN LOCK SYSTEM
     // =====================================================
     const CORRECT_PIN = "09021969";
+    const SESSION_KEY = "btc_portfolio_unlocked";
     let enteredPin = "";
+
+    // Check if already unlocked in this session
+    function isUnlocked() {
+      return sessionStorage.getItem(SESSION_KEY) === "true";
+    }
+
+    function setUnlocked() {
+      sessionStorage.setItem(SESSION_KEY, "true");
+    }
 
     function updatePinDisplay() {
       const dots = document.querySelectorAll(".pinDot");
@@ -608,6 +618,7 @@
     function checkPin() {
       if (enteredPin === CORRECT_PIN) {
         // Success
+        setUnlocked();
         const lockScreen = document.getElementById("lockScreen");
         lockScreen.classList.add("success");
         document.getElementById("pinError").textContent = "";
@@ -672,6 +683,13 @@
         handlePinInput("clear");
       }
     });
+
+    // Check if already unlocked - skip PIN screen
+    if (isUnlocked()) {
+      document.getElementById("lockScreen").style.display = "none";
+      document.getElementById("mainContent").style.display = "";
+      load();
+    }
 
     // =====================================================
 
