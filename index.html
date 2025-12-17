@@ -695,6 +695,13 @@
 
     const MEMPOOL = "https://mempool.space/api";
     const COINGECKO = "https://api.coingecko.com/api/v3";
+    
+    // Rate limiting - Verzögerung zwischen API-Aufrufen
+    const API_DELAY_MS = 500; // 500ms zwischen Anfragen
+    
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     // Erkennt ob es eine einzelne Adresse oder ein Extended Key ist
     function isExtendedKey(addr) {
@@ -727,16 +734,38 @@
       return addr;
     }
 
-    async function fetchJson(url) {
+    async function fetchJson(url, retries = 3) {
       console.log("Fetching:", url);
-      const r = await fetch(url, { cache: "no-store" });
-      if (!r.ok) {
-        console.error("API Error:", r.status, r.statusText, url);
-        throw new Error(`${r.status} ${r.statusText}`);
+      
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const r = await fetch(url, { cache: "no-store" });
+          
+          if (r.status === 429) {
+            // Rate limited - wait and retry
+            const waitTime = attempt * 2000; // 2s, 4s, 6s
+            console.warn(`Rate limited (429). Warte ${waitTime/1000}s... (Versuch ${attempt}/${retries})`);
+            await delay(waitTime);
+            continue;
+          }
+          
+          if (!r.ok) {
+            console.error("API Error:", r.status, r.statusText, url);
+            throw new Error(`${r.status} ${r.statusText}`);
+          }
+          
+          const data = await r.json();
+          console.log("Response:", data);
+          return data;
+          
+        } catch (e) {
+          if (attempt === retries) {
+            throw e;
+          }
+          console.warn(`Fehler bei Versuch ${attempt}/${retries}:`, e.message);
+          await delay(attempt * 1000);
+        }
       }
-      const data = await r.json();
-      console.log("Response:", data);
-      return data;
     }
 
     async function getBtcPrice() {
@@ -831,6 +860,11 @@
           const [addr, name] = entries[i];
           const btcEl = document.getElementById(`btc-${i}`);
           const eurEl = document.getElementById(`eur-${i}`);
+          
+          // Verzögerung zwischen Anfragen (außer bei der ersten)
+          if (i > 0) {
+            await delay(API_DELAY_MS);
+          }
           
           try {
             console.log(`Lade Balance für ${name}...`);
