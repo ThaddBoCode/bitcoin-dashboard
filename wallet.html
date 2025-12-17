@@ -663,7 +663,7 @@
       </div>
 
       <div class="actions">
-        <a class="btn" href="index.html" title="Zurück zur Übersicht">←</a>
+        <a class="btn" href="index.html" id="backBtn" title="Zurück zur Übersicht" style="display:none;">←</a>
         <a class="btn" id="explorerBtn" target="_blank" rel="noopener" title="Explorer">↗</a>
         <button class="btn" id="refreshBtn" title="Aktualisieren">⟳</button>
       </div>
@@ -783,6 +783,17 @@
         </div>`;
       throw new Error("config.js not loaded");
     }
+
+    // Zurück-Button nur anzeigen, wenn man vom Portfolio kommt
+    (function() {
+      const referrer = document.referrer;
+      const backBtn = document.getElementById("backBtn");
+      
+      // Zeige Button wenn referrer "index.html" enthält oder von der gleichen Domain kommt
+      if (referrer && (referrer.includes("index.html") || referrer.endsWith("/"))) {
+        backBtn.style.display = "";
+      }
+    })();
 
     function getParam(name){
       const url = new URL(window.location.href);
