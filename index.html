@@ -354,13 +354,191 @@
       .walletName { font-size: 16px; }
       .totalItemValue { font-size: 18px; }
     }
+
+    /* PIN Lock Screen */
+    .lockScreen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .lockScreen::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 107, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 107, 0, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .lockBox {
+      position: relative;
+      text-align: center;
+      padding: 30px;
+    }
+
+    .lockIcon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      animation: lockPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes lockPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .lockBox h2 {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--text-bright);
+      margin-bottom: 8px;
+    }
+
+    .lockBox p {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+    }
+
+    .pinDisplay {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .pinDot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--neon-orange);
+      background: transparent;
+      transition: all 0.15s ease;
+    }
+
+    .pinDot.filled {
+      background: var(--neon-orange);
+      box-shadow: 0 0 10px var(--neon-orange-glow);
+    }
+
+    .pinError {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: #ff3366;
+      height: 20px;
+      margin-bottom: 16px;
+    }
+
+    .pinPad {
+      display: grid;
+      grid-template-columns: repeat(3, 64px);
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .pinKey {
+      width: 64px;
+      height: 54px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .pinKey:hover {
+      border-color: var(--neon-orange);
+      background: rgba(255, 107, 0, 0.1);
+    }
+
+    .pinKey:active {
+      transform: scale(0.95);
+    }
+
+    .pinClear {
+      color: #ff3366;
+    }
+
+    .pinBack {
+      color: var(--text-dim);
+    }
+
+    .lockScreen.shake .lockBox {
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-10px); }
+      80% { transform: translateX(10px); }
+    }
+
+    .lockScreen.success .lockIcon {
+      animation: none;
+    }
+
+    .lockScreen.success .pinDot.filled {
+      background: var(--neon-green);
+      border-color: var(--neon-green);
+      box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+    }
   </style>
 </head>
 
 <body>
   <div class="scanlines"></div>
   
-  <div class="wrap">
+  <!-- PIN Lock Screen -->
+  <div class="lockScreen" id="lockScreen">
+    <div class="lockBox">
+      <div class="lockIcon">🔒</div>
+      <h2>Portfolio gesperrt</h2>
+      <p>Bitte PIN eingeben</p>
+      <div class="pinDisplay" id="pinDisplay">
+        <span class="pinDot"></span>
+        <span class="pinDot"></span>
+        <span class="pinDot"></span>
+        <span class="pinDot"></span>
+        <span class="pinDot"></span>
+        <span class="pinDot"></span>
+        <span class="pinDot"></span>
+        <span class="pinDot"></span>
+      </div>
+      <div class="pinError" id="pinError"></div>
+      <div class="pinPad">
+        <button class="pinKey" data-num="1">1</button>
+        <button class="pinKey" data-num="2">2</button>
+        <button class="pinKey" data-num="3">3</button>
+        <button class="pinKey" data-num="4">4</button>
+        <button class="pinKey" data-num="5">5</button>
+        <button class="pinKey" data-num="6">6</button>
+        <button class="pinKey" data-num="7">7</button>
+        <button class="pinKey" data-num="8">8</button>
+        <button class="pinKey" data-num="9">9</button>
+        <button class="pinKey pinClear" data-num="clear">✕</button>
+        <button class="pinKey" data-num="0">0</button>
+        <button class="pinKey pinBack" data-num="back">←</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="wrap" id="mainContent" style="display:none;">
     <div class="header">
       <div class="brand-icon"></div>
       <h1>Bitcoin Portfolio</h1>
@@ -409,6 +587,93 @@
     
     console.log("ADDRESS_BOOK geladen:", ADDRESS_BOOK);
     console.log("Anzahl Wallets:", Object.keys(ADDRESS_BOOK).length);
+
+    // =====================================================
+    // PIN LOCK SYSTEM
+    // =====================================================
+    const CORRECT_PIN = "09021969";
+    let enteredPin = "";
+
+    function updatePinDisplay() {
+      const dots = document.querySelectorAll(".pinDot");
+      dots.forEach((dot, i) => {
+        if (i < enteredPin.length) {
+          dot.classList.add("filled");
+        } else {
+          dot.classList.remove("filled");
+        }
+      });
+    }
+
+    function checkPin() {
+      if (enteredPin === CORRECT_PIN) {
+        // Success
+        const lockScreen = document.getElementById("lockScreen");
+        lockScreen.classList.add("success");
+        document.getElementById("pinError").textContent = "";
+        
+        setTimeout(() => {
+          lockScreen.style.display = "none";
+          document.getElementById("mainContent").style.display = "";
+          load();
+        }, 400);
+      } else {
+        // Wrong PIN
+        const lockScreen = document.getElementById("lockScreen");
+        lockScreen.classList.add("shake");
+        document.getElementById("pinError").textContent = "Falscher Code";
+        
+        setTimeout(() => {
+          lockScreen.classList.remove("shake");
+          enteredPin = "";
+          updatePinDisplay();
+        }, 500);
+      }
+    }
+
+    function handlePinInput(num) {
+      document.getElementById("pinError").textContent = "";
+      
+      if (num === "clear") {
+        enteredPin = "";
+      } else if (num === "back") {
+        enteredPin = enteredPin.slice(0, -1);
+      } else {
+        if (enteredPin.length < 8) {
+          enteredPin += num;
+        }
+      }
+      
+      updatePinDisplay();
+      
+      // Auto-check when 8 digits entered
+      if (enteredPin.length === 8) {
+        setTimeout(checkPin, 150);
+      }
+    }
+
+    // Setup PIN pad event listeners
+    document.querySelectorAll(".pinKey").forEach(key => {
+      key.addEventListener("click", () => {
+        handlePinInput(key.dataset.num);
+      });
+    });
+
+    // Keyboard support
+    document.addEventListener("keydown", (e) => {
+      const lockScreen = document.getElementById("lockScreen");
+      if (lockScreen.style.display === "none") return;
+      
+      if (e.key >= "0" && e.key <= "9") {
+        handlePinInput(e.key);
+      } else if (e.key === "Backspace") {
+        handlePinInput("back");
+      } else if (e.key === "Escape") {
+        handlePinInput("clear");
+      }
+    });
+
+    // =====================================================
 
     const MEMPOOL = "https://mempool.space/api";
     const COINGECKO = "https://api.coingecko.com/api/v3";
@@ -608,19 +873,15 @@
     // Start loading
     window.onerror = function(msg, url, line) {
       console.error("JavaScript Fehler:", msg, "Zeile:", line);
-      document.getElementById("errBox").textContent = "JS Fehler: " + msg;
-      document.getElementById("errBox").style.display = "block";
-      document.getElementById("updateTime").textContent = "Fehler";
+      const errBox = document.getElementById("errBox");
+      if (errBox) {
+        errBox.textContent = "JS Fehler: " + msg;
+        errBox.style.display = "block";
+      }
     };
     
-    console.log("Starte load()...");
-    load().then(() => {
-      console.log("load() fertig");
-    }).catch(e => {
-      console.error("load() Fehler:", e);
-      document.getElementById("errBox").textContent = "Fehler: " + e.message;
-      document.getElementById("errBox").style.display = "block";
-    });
+    // load() wird nach erfolgreicher PIN-Eingabe aufgerufen
+    console.log("PIN-Eingabe erforderlich...");
   </script>
 </body>
 </html>
