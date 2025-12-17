@@ -736,7 +736,20 @@
         <div class="txList" id="txList"></div>
       </div>
 
-      <div class="card qrCard">
+      <div class="card qrCard" id="walletLinkCard">
+        <div class="title">
+          <div>
+            <strong>Wallet Link</strong>
+          </div>
+        </div>
+        <div class="qrContainer">
+          <div class="qrCode" id="qrCodeLink"></div>
+          <div class="qrAddr" id="qrLinkText">–</div>
+          <button class="copyBtn" id="copyLinkBtn" title="Link kopieren">Link kopieren</button>
+        </div>
+      </div>
+
+      <div class="card qrCard" id="btcReceiveCard">
         <div class="title">
           <div>
             <strong>BTC Empfangen</strong>
@@ -1140,6 +1153,35 @@
       });
     }
 
+    // Setup Wallet Link QR code
+    function setupWalletLinkQR(){
+      const qrContainer = el("qrCodeLink");
+      const walletUrl = window.location.href;
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(walletUrl)}&bgcolor=ffffff&color=000000`;
+      
+      const img = document.createElement("img");
+      img.src = qrUrl;
+      img.alt = "Wallet Link QR Code";
+      qrContainer.appendChild(img);
+
+      // Show friendly description
+      el("qrLinkText").textContent = `Link zu "${WALLET_NAME}" Wallet`;
+
+      el("copyLinkBtn").addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(walletUrl);
+          el("copyLinkBtn").textContent = "Kopiert!";
+          el("copyLinkBtn").classList.add("copied");
+          setTimeout(() => {
+            el("copyLinkBtn").textContent = "Link kopieren";
+            el("copyLinkBtn").classList.remove("copied");
+          }, 2000);
+        } catch(e) {
+          el("copyLinkBtn").textContent = "Fehler";
+        }
+      });
+    }
+
     async function load(){
       destroyCharts();
       clearError();
@@ -1158,13 +1200,18 @@
       
       el("todayPill").textContent = new Date().toLocaleDateString("de-DE", { day: "2-digit", month: "2-digit", year: "numeric" });
 
-      // Setup QR Code (only for single addresses, not for xpub/ypub/zpub)
+      // Setup Wallet Link QR Code (always)
+      if(!el("qrCodeLink").hasChildNodes()){
+        setupWalletLinkQR();
+      }
+
+      // Setup BTC QR Code (only for single addresses, not for xpub/ypub/zpub)
       if(!isExtendedKey(ADDRESS) && !el("qrCode").hasChildNodes()){
         setupQRCode();
       } else if(isExtendedKey(ADDRESS)) {
-        // Hide QR card for extended keys
-        const qrCard = document.querySelector(".qrCard");
-        if(qrCard) qrCard.style.display = "none";
+        // Hide BTC QR card for extended keys
+        const btcReceiveCard = el("btcReceiveCard");
+        if(btcReceiveCard) btcReceiveCard.style.display = "none";
       }
 
       setStatusLoading();
