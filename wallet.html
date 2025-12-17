@@ -827,6 +827,13 @@
 
     const MEMPOOL = "https://mempool.space/api";
     const COINGECKO = "https://api.coingecko.com/api/v3";
+    
+    // Rate limiting - Verzögerung zwischen API-Aufrufen
+    const API_DELAY_MS = 500;
+    
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
 
     // Erkennt ob es eine einzelne Adresse oder ein Extended Key ist
     function isExtendedKey(addr) {
@@ -904,10 +911,28 @@
     }
     function addDaysUnix(ts, days){ return ts + (days * 86400); }
 
-    async function fetchJson(url){
-      const r = await fetch(url, { cache:"no-store" });
-      if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-      return r.json();
+    async function fetchJson(url, retries = 3){
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const r = await fetch(url, { cache:"no-store" });
+          
+          if (r.status === 429) {
+            // Rate limited - wait and retry
+            const waitTime = attempt * 2000;
+            console.warn(`Rate limited (429). Warte ${waitTime/1000}s... (Versuch ${attempt}/${retries})`);
+            await delay(waitTime);
+            continue;
+          }
+          
+          if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+          return r.json();
+          
+        } catch (e) {
+          if (attempt === retries) throw e;
+          console.warn(`Fehler bei Versuch ${attempt}/${retries}:`, e.message);
+          await delay(attempt * 1000);
+        }
+      }
     }
 
     function setStatusLoading(){}
